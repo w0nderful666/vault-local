@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/w0nderful666/open-tools-starter"
+    "url": "https://github.com/w0nderful666/local-clipboard-vault"
   },
-  "homepage": "https://w0nderful666.github.io/open-tools-starter/",
+  "homepage": "https://w0nderful666.github.io/local-clipboard-vault/",
   "keywords": [
     "github-pages",
     "frontend",

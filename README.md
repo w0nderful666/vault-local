@@ -7,7 +7,7 @@
 
 Local Clipboard Vault / 本地剪贴内容保险箱 is a Local First, No Backend, GitHub Pages Ready clipboard workspace. It saves prompts, commands, notes, JSON snippets, Markdown, templates, and token placeholders as small floating cards in the browser.
 
-Live demo: https://w0nderful666.github.io/open-tools-starter/
+Live demo: https://w0nderful666.github.io/local-clipboard-vault/
 
 ## Positioning
 
