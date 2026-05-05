@@ -1,0 +1,29 @@
+{
+  "name": "Local Clipboard Vault",
+  "short_name": "LCV",
+  "description": "A Local First clipboard vault for saving and encrypting snippets in the browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#1f7a70",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["developer tools", "utilities", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "./",
+  "prefer_related_applications": false,
+  "version": "0.1.0"
+}
