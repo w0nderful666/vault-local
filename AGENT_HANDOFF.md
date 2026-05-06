@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.4.0 |
+| 当前版本 | v0.5.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Card Proportions 完成 → OS Workspace 完成
+OS Workspace 完成 → OS Navigation 完成
 
 ---
 
@@ -35,6 +35,52 @@ OS Card Proportions 完成 → OS Workspace 完成
 - ✅ OS Floating Workbench 重构（v0.3.0 版本升级）
 - ✅ OS Card Proportions 重构（v0.3.1 版本升级）
 - ✅ OS Workspace 重构（v0.4.0 版本升级）
+- ✅ OS Navigation 重构（v0.5.0 版本升级）
+
+---
+
+## OS Navigation 重构 (v0.5.0)
+
+### 目标
+
+新增底部 Dock 系统，作为整个 OS Workspace 的核心导航层
+
+### 修改内容
+
+**版本升级**：v0.4.0 → v0.5.0
+
+**App.tsx**：
+- 新增 dockFilter 状态（ClipType | "All"）
+- 新增 settingsOpen 状态
+- 新增 Dock UI（底部固定漂浮窗口）
+- Dock 包含：All, 各类型图标（限制6个）
+- Dock 最右侧：Settings 按钮
+- 新增 Settings Modal（Appearance, Language）
+
+**global.css**：
+- .dock: 固定底部居中，半透明玻璃效果 blur(20px)
+- .dock__item: 32px 圆形图标按钮
+- .dock__settings: 设置按钮
+- .settings-panel: 设置面板布局
+- .settings__section: 设置分组
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### OS Dock 规则
+
+1. **漂浮 Dock**：position fixed, bottom 16px, blur 玻璃效果
+2. **分类切换**：Dock 点击切换 workspace 内容类型
+3. **Settings**：最右侧入口，打开 OS Preferences 面板
+4. **语言**：Settings 中可直接切换中/英文
+5. **Theme**：Settings 中可直接切换 Light/Dark
+
+---
 
 ---
 

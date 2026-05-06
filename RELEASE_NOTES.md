@@ -1,5 +1,17 @@
 # Release Notes
 
+## v0.5.0 — OS Navigation
+
+May 6, 2026.
+
+Added:
+
+- Bottom Dock with floating glass style
+- Dock category switching (All, Prompt, API Key, Token, Command, etc.)
+- Settings panel (Appearance, Language)
+- OS Dock System at bottom of workspace
+- v0.5.0
+
 ## v0.4.0 — OS Workspace
 
 May 6, 2026.

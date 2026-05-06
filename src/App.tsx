@@ -14,9 +14,11 @@ import {
   Pin,
   Plus,
   Search,
+  Settings,
   ShieldCheck,
   Sparkles,
   Sun,
+  Terminal,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -83,9 +85,16 @@ const text = {
     exportJson: "Export JSON",
     loadSample: "Load sample data",
     clearAll: "Clear all data",
-    privacyFirst: "Privacy first",
+privacyFirst: "Privacy first",
     localOnly: "Local only",
     noBackend: "No backend",
+    settings: "Settings",
+    appearance: "Appearance",
+    theme: "Theme",
+    light: "Light",
+    dark: "Dark",
+    auto: "Auto",
+    language: "Language",
     savedFromClipboard: "Saved from clipboard",
     saved: "Saved",
     clipboardDenied: "Clipboard permission denied. Use Ctrl + V manually.",
@@ -135,6 +144,13 @@ const text = {
     privacyFirst: "Privacy first",
     localOnly: "Local only",
     noBackend: "No backend",
+    settings: "Settings",
+    appearance: "Appearance",
+    theme: "Theme",
+    light: "Light",
+    dark: "Dark",
+    auto: "Auto",
+    language: "Language",
     savedFromClipboard: "Saved from clipboard",
     saved: "Saved",
     clipboardDenied: "Clipboard permission denied. Paste manually with Ctrl + V.",
@@ -228,6 +244,8 @@ export function App() {
   const [editContent, setEditContent] = useState("");
   const [editTags, setEditTags] = useState("");
   const [toast, setToast] = useState<ToastMessage | null>(null);
+  const [dockFilter, setDockFilter] = useState<ClipType | "All">("All");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const t = text[language];
   const vaultUnlocked = vaultPassword.length > 0;
@@ -283,8 +301,12 @@ export function App() {
   );
 
   const filteredClips = useMemo(
-    () => sortClips(clips).filter((clip) => matchesFilter(clip, filter, revealed[clip.id])),
-    [clips, filter, revealed],
+    () =>
+      sortClips(clips).filter((clip) => {
+        if (dockFilter !== "All" && clip.type !== dockFilter) return false;
+        return matchesFilter(clip, filter, revealed[clip.id]);
+      }),
+    [clips, filter, revealed, dockFilter],
   );
 
   const showToast = (text: string, tone: ToastMessage["tone"] = "success") => {
@@ -711,9 +733,84 @@ export function App() {
             </div>
           </details>
         </section>
+
+        <div className="dock">
+          <div className="dock__items">
+            <button
+              className={dockFilter === "All" ? "dock__item dock__item--active" : "dock__item"}
+              onClick={() => setDockFilter("All")}
+              title="All"
+            >
+              <Clipboard size={16} />
+            </button>
+            {CLIP_TYPES.slice(0, 6).map((type) => (
+              <button
+                key={type}
+                className={dockFilter === type ? "dock__item dock__item--active" : "dock__item"}
+                onClick={() => setDockFilter(type)}
+                title={type}
+              >
+                {type === "Prompt" && <Sparkles size={16} />}
+                {type === "API Key" && <Lock size={16} />}
+                {type === "Token" && <ShieldCheck size={16} />}
+                {type === "Command" && <Terminal size={16} />}
+                {type === "Note" && <FileJson size={16} />}
+                {type === "Template" && <FileJson size={16} />}
+                {type === "JSON" && <FileJson size={16} />}
+                {type === "Markdown" && <FileJson size={16} />}
+                {type === "Other" && <FileJson size={16} />}
+              </button>
+            ))}
+          </div>
+          <button className="dock__settings" onClick={() => setSettingsOpen(true)} title={t.settings}>
+            <Settings size={16} />
+          </button>
+</div>
       </main>
 
-      
+      <Modal closeLabel="Close" isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} title={t.settings}>
+        <div className="settings-panel">
+          <div className="settings__section">
+            <h3>{t.appearance}</h3>
+            <div className="settings__options">
+              <label className="check">
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === "light"}
+                  onChange={() => setTheme("light")}
+                />
+                {t.light}
+              </label>
+              <label className="check">
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === "dark"}
+                  onChange={() => setTheme("dark")}
+                />
+                {t.dark}
+              </label>
+              <label className="check">
+                <input
+                  type="radio"
+                  name="theme"
+                  checked={theme === "light" || theme === "dark"}
+                  onChange={() => {}}
+                />
+                {t.auto}
+              </label>
+            </div>
+          </div>
+          <div className="settings__section">
+            <h3>{t.language}</h3>
+            <div className="settings__options">
+              <Button onClick={() => setLanguage("zh")} variant={language === "zh" ? "primary" : "secondary"}>中文</Button>
+              <Button onClick={() => setLanguage("en")} variant={language === "en" ? "primary" : "secondary"}>English</Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       <Modal closeLabel="Close" isOpen={Boolean(editing)} onClose={() => setEditing(null)} title={editing?.title ?? t.details}>
         {editing ? (
