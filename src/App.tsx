@@ -480,18 +480,12 @@ export function App() {
   return (
     <div className="app-shell" data-testid="app-shell">
       <header className="topbar">
-        <a className="brand" href="#vault" aria-label={siteMeta.name}>
-          <span className="brand__mark" aria-hidden="true"><Clipboard size={21} /></span>
-          <span>
-            <strong>{siteMeta.name}</strong>
-            <small>{language === "zh" ? t.localName : "Local only clipboard vault"}</small>
-          </span>
-        </a>
-        <nav className="nav-links" aria-label="Primary">
-          <a href="#capture">{t.quickCapture}</a>
-          <a href="#cards">{t.floatingCards}</a>
-          <a href="#advanced">Advanced Tools</a>
-        </nav>
+        <div className="topbar__brand">
+          <span className="topbar__icon"><Clipboard size={18} /></span>
+          <span className="topbar__version">v{siteMeta.version}</span>
+          <span className="topbar__badge">Local First</span>
+          <span className="topbar__badge">No Backend</span>
+        </div>
         <div className="topbar__actions">
           <Button
             aria-label="Toggle theme"
@@ -517,90 +511,81 @@ export function App() {
       </header>
 
       <main>
-        <section className="hero section" id="vault">
-          <div className="hero__content">
-            <p className="eyebrow">v{siteMeta.version} · Local First · No Backend · GitHub Pages Ready</p>
-            <h1>{siteMeta.name}</h1>
-            <p className="hero__body">{t.tagline}</p>
-            <div className="tag-row">
-              <span className="tag"><ShieldCheck size={15} />{t.privacyFirst}</span>
-              <span className="tag"><Lock size={15} />{t.encryptionEnabled}</span>
-              <span className="tag"><FileJson size={15} />JSON import / export</span>
-            </div>
-          </div>
-          <aside className="vault-panel">
-            <div className="vault-panel__status">
-              <span className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"} />
-              <strong>{vaultUnlocked ? t.unlocked : t.locked}</strong>
-              <small>{AUTO_LOCK_MINUTES} min auto lock</small>
-            </div>
-            <label className="field">
-              <span>{t.masterPassword}</span>
-              <input
-                autoComplete="off"
-                onChange={(event) => setPasswordInput(event.target.value)}
-                placeholder="Never saved"
-                type="password"
-                value={passwordInput}
-              />
-            </label>
-            <div className="button-row">
-              <Button
-                icon={<ShieldCheck size={17} />}
-                onClick={() => {
-                  if (!passwordInput) return showToast(t.unlockFirst, "danger");
-                  setVaultPassword(passwordInput);
-                  setPasswordInput("");
-                  showToast(t.unlocked);
-                }}
-                variant="primary"
-              >
-                {t.unlockVault}
-              </Button>
-              <Button icon={<Lock size={17} />} onClick={lockVault}>
-                {t.lockVault}
-              </Button>
-            </div>
-          </aside>
-        </section>
-
         <section className="workspace">
-          <div className="capture-dock" data-testid="quick-capture" id="capture">
-            <div>
-              <p className="eyebrow">{t.quickCapture}</p>
-              <h2>{t.manualPaste}</h2>
-              <p>{t.autoTitle} · {t.autoType} · {t.ctrlEnter}</p>
+          <div className="main-content">
+            <div className="clips-header">
+              <h2>{t.recentClips}</h2>
+              <small>{filteredClips.length} / {clips.length} clips</small>
             </div>
-            <textarea
-              aria-label={t.manualPaste}
-              onChange={(event) => setManualText(event.target.value)}
-              onKeyDown={(event) => {
-                if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-                  void saveNewContent(manualText);
-                }
-              }}
-              placeholder="Paste prompt, command, token placeholder, JSON, Markdown..."
-              value={manualText}
-            />
-            <div className="capture-dock__actions">
-              <label className="check">
-                <input
-                  checked={manualSensitive}
-                  onChange={(event) => setManualSensitive(event.target.checked)}
-                  type="checkbox"
-                />
-                {t.sensitive}
-              </label>
-              <Button icon={<Clipboard size={17} />} onClick={importFromClipboard} variant="primary">
-                {t.pasteFromClipboard}
-              </Button>
-              <Button icon={<Plus size={17} />} onClick={() => void saveNewContent(manualText)}>
-                {t.saveContent}
-              </Button>
+            <div className="floating-grid" data-testid="floating-cards">
+              {filteredClips.map((clip) => (
+                <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void openEdit(clip)}>
+                  <div className="clip-card__bar">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <div className="clip-card__head">
+                    <div>
+                      <h3>{clip.title}</h3>
+                      <small>{formatTime(clip.updatedAt)}</small>
+                    </div>
+                    <span className="type-badge">{clip.type}</span>
+                  </div>
+                  <p className="clip-card__summary">{summarizeClip(clip, revealed[clip.id])}</p>
+                  <div className="tag-row tag-row--compact">
+                    {clip.tags.map((tag) => <span className="tag tag--small" key={tag}>{tag}</span>)}
+                    {clip.pinned ? <span className="tag tag--small">Pinned</span> : null}
+                    {clip.favorite ? <span className="tag tag--small">Favorite</span> : null}
+                    {clip.sensitive ? <span className="tag tag--small">Sensitive</span> : null}
+                    {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
+                  </div>
+                  <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
+                    <Button icon={<Copy size={15} />} onClick={() => void copyClip(clip)} size="sm">{t.copy}</Button>
+                    <Button icon={<Pencil size={15} />} onClick={() => void openEdit(clip)} size="sm">{t.edit}</Button>
+                    <Button icon={<Sparkles size={15} />} onClick={() => void cloneClip(clip)} size="sm">{t.clone}</Button>
+                    <Button icon={<Pin size={15} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "secondary"}>{t.pin}</Button>
+                    <Button icon={<Heart size={15} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "secondary"}>{t.favorite}</Button>
+                    {clip.encrypted ? (
+                      <Button icon={revealed[clip.id] ? <EyeOff size={15} /> : <Eye size={15} />} onClick={() => void revealClip(clip)} size="sm">{t.reveal}</Button>
+                    ) : null}
+                    <Button icon={<Trash2 size={15} />} onClick={() => deleteClip(clip)} size="sm" variant="danger">{t.delete}</Button>
+                  </div>
+                </article>
+              ))}
             </div>
+            {filteredClips.length === 0 ? <p className="empty-note">{t.noResults}</p> : null}
           </div>
 
-          <aside className="filter-panel">
+          <aside className="sidebar">
+            <div className="capture-dock" data-testid="quick-capture" id="capture">
+              <p className="eyebrow">{t.quickCapture}</p>
+              <textarea
+                aria-label={t.manualPaste}
+                onChange={(event) => setManualText(event.target.value)}
+                onKeyDown={(event) => {
+                  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+                    void saveNewContent(manualText);
+                  }
+                }}
+                placeholder="Paste prompt, command, token placeholder, JSON, Markdown... (Ctrl+Enter)"
+                value={manualText}
+              />
+              <div className="capture-dock__actions">
+                <label className="check">
+                  <input
+                    checked={manualSensitive}
+                    onChange={(event) => setManualSensitive(event.target.checked)}
+                    type="checkbox"
+                  />
+                  {t.sensitive}
+                </label>
+                <Button icon={<Plus size={17} />} onClick={() => void saveNewContent(manualText)}>
+                  {t.saveContent}
+                </Button>
+              </div>
+            </div>
+
             <label className="search-box">
               <Search size={17} />
               <input
@@ -610,6 +595,7 @@ export function App() {
                 value={filter.query}
               />
             </label>
+
             <div className="chip-row">
               <button className={filter.type === "All" ? "chip is-active" : "chip"} onClick={() => setFilter((current) => ({ ...current, type: "All" }))} type="button">All</button>
               {CLIP_TYPES.map((type) => (
@@ -623,6 +609,7 @@ export function App() {
                 </button>
               ))}
             </div>
+
             <select
               aria-label={t.tags}
               onChange={(event) => setFilter((current) => ({ ...current, tag: event.target.value }))}
@@ -631,6 +618,7 @@ export function App() {
               <option value="">All tags</option>
               {tags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
             </select>
+
             <div className="button-row">
               <Button
                 icon={<Heart size={16} />}
@@ -647,86 +635,79 @@ export function App() {
                 {t.pin}
               </Button>
             </div>
+
             <Button onClick={() => setFilter({ query: "", type: "All", tag: "", onlyPinned: false, onlyFavorite: false })}>
               Clear filters · {filteredClips.length}
+            </Button>
+
+            <Button icon={<Clipboard size={17} />} onClick={importFromClipboard} variant="primary">
+              {t.pasteFromClipboard}
             </Button>
           </aside>
         </section>
 
-        <section className="section" id="cards">
-          <div className="section__header">
-            <p className="eyebrow">{t.floatingCards}</p>
-            <h2>{t.recentClips}</h2>
-            <p>{filteredClips.length} / {clips.length} clips</p>
-          </div>
-          <div className="floating-grid" data-testid="floating-cards">
-            {filteredClips.map((clip) => (
-              <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void openEdit(clip)}>
-                <div className="clip-card__bar">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <div className="clip-card__head">
-                  <div>
-                    <h3>{clip.title}</h3>
-                    <small>{formatTime(clip.updatedAt)}</small>
-                  </div>
-                  <span className="type-badge">{clip.type}</span>
-                </div>
-                <p className="clip-card__summary">{summarizeClip(clip, revealed[clip.id])}</p>
-                <div className="tag-row tag-row--compact">
-                  {clip.tags.map((tag) => <span className="tag tag--small" key={tag}>{tag}</span>)}
-                  {clip.pinned ? <span className="tag tag--small">Pinned</span> : null}
-                  {clip.favorite ? <span className="tag tag--small">Favorite</span> : null}
-                  {clip.sensitive ? <span className="tag tag--small">Sensitive</span> : null}
-                  {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
-                </div>
-                <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
-                  <Button icon={<Copy size={15} />} onClick={() => void copyClip(clip)} size="sm">{t.copy}</Button>
-                  <Button icon={<Pencil size={15} />} onClick={() => void openEdit(clip)} size="sm">{t.edit}</Button>
-                  <Button icon={<Sparkles size={15} />} onClick={() => void cloneClip(clip)} size="sm">{t.clone}</Button>
-                  <Button icon={<Pin size={15} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "secondary"}>{t.pin}</Button>
-                  <Button icon={<Heart size={15} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "secondary"}>{t.favorite}</Button>
-                  {clip.encrypted ? (
-                    <Button icon={revealed[clip.id] ? <EyeOff size={15} /> : <Eye size={15} />} onClick={() => void revealClip(clip)} size="sm">{t.reveal}</Button>
-                  ) : null}
-                  <Button icon={<Trash2 size={15} />} onClick={() => deleteClip(clip)} size="sm" variant="danger">{t.delete}</Button>
-                </div>
-              </article>
-            ))}
-          </div>
-          {filteredClips.length === 0 ? <p className="empty-note">{t.noResults}</p> : null}
-        </section>
-
         <section className="advanced section" id="advanced">
-          <div>
-            <p className="eyebrow">Advanced Tools</p>
-            <h2>{t.privacyFirst}</h2>
-            <p>{t.privacyNote}</p>
-          </div>
-          <div className="advanced__actions">
-            <input
-              accept="application/json"
-              hidden
-              onChange={(event) => void importJson(event.target.files?.[0])}
-              ref={importInputRef}
-              type="file"
-            />
-            <Button icon={<Upload size={17} />} onClick={() => importInputRef.current?.click()}>{t.importJson}</Button>
-            <Button icon={<Download size={17} />} onClick={exportJson}>{t.exportJson}</Button>
-            <Button icon={<FileJson size={17} />} onClick={() => setClips(sortClips(sampleClips))}>{t.loadSample}</Button>
-            <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">{t.clearAll}</Button>
-          </div>
+          <details className="advanced__details">
+            <summary className="advanced__summary">
+              <span>Advanced Tools</span>
+              <small>{t.privacyFirst} · {t.localOnly} · {t.noBackend}</small>
+            </summary>
+            <div className="advanced__content">
+              <div className="vault-panel">
+                <div className="vault-panel__status">
+                  <span className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"} />
+                  <strong>{vaultUnlocked ? t.unlocked : t.locked}</strong>
+                  <small>{AUTO_LOCK_MINUTES} min auto lock</small>
+                </div>
+                <label className="field">
+                  <span>{t.masterPassword}</span>
+                  <input
+                    autoComplete="off"
+                    onChange={(event) => setPasswordInput(event.target.value)}
+                    placeholder="Never saved"
+                    type="password"
+                    value={passwordInput}
+                  />
+                </label>
+                <div className="button-row">
+                  <Button
+                    icon={<ShieldCheck size={17} />}
+                    onClick={() => {
+                      if (!passwordInput) return showToast(t.unlockFirst, "danger");
+                      setVaultPassword(passwordInput);
+                      setPasswordInput("");
+                      showToast(t.unlocked);
+                    }}
+                    variant="primary"
+                  >
+                    {t.unlockVault}
+                  </Button>
+                  <Button icon={<Lock size={17} />} onClick={lockVault}>
+                    {t.lockVault}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="advanced__actions">
+                <p className="privacy-note">{t.privacyNote}</p>
+                <input
+                  accept="application/json"
+                  hidden
+                  onChange={(event) => void importJson(event.target.files?.[0])}
+                  ref={importInputRef}
+                  type="file"
+                />
+                <Button icon={<Upload size={17} />} onClick={() => importInputRef.current?.click()}>{t.importJson}</Button>
+                <Button icon={<Download size={17} />} onClick={exportJson}>{t.exportJson}</Button>
+                <Button icon={<FileJson size={17} />} onClick={() => setClips(sortClips(sampleClips))}>{t.loadSample}</Button>
+                <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">{t.clearAll}</Button>
+              </div>
+            </div>
+          </details>
         </section>
       </main>
 
-      <footer className="app-footer">
-        <span className="app-footer__version">v{siteMeta.version}</span>
-        <span className="app-footer__tag">{t.localOnly}</span>
-        <span className="app-footer__tag">{t.noBackend}</span>
-        <span className="app-footer__tag">GitHub Pages Ready</span>
-      </footer>
+      
 
       <Modal closeLabel="Close" isOpen={Boolean(editing)} onClose={() => setEditing(null)} title={editing?.title ?? t.details}>
         {editing ? (
