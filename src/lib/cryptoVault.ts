@@ -14,12 +14,14 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function base64ToBytes(value: string): Uint8Array {
+function base64ToBytes(value: string): Uint8Array<ArrayBuffer> {
   const binary = atob(value);
-  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  // TS can infer Uint8Array<ArrayBufferLike> here; WebCrypto expects BufferSource
+  // backed by ArrayBuffer. This cast keeps the runtime behavior identical.
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0)) as Uint8Array<ArrayBuffer>;
 }
 
-async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+async function deriveKey(password: string, salt: BufferSource): Promise<CryptoKey> {
   const baseKey = await crypto.subtle.importKey(
     "raw",
     encoder.encode(password),
@@ -50,8 +52,8 @@ export async function encryptContent(content: string, password: string): Promise
     throw new Error("Master password is required.");
   }
 
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const salt = crypto.getRandomValues(new Uint8Array(16)) as Uint8Array<ArrayBuffer>;
+  const iv = crypto.getRandomValues(new Uint8Array(12)) as Uint8Array<ArrayBuffer>;
   const key = await deriveKey(password, salt);
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
