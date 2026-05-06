@@ -112,11 +112,12 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  padding: 8px clamp(14px, 4vw, 40px);
-  backdrop-filter: blur(18px);
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  padding: 6px 16px;
+  backdrop-filter: blur(12px);
+  height: 48px;
 }
 
 .topbar__brand {
@@ -264,57 +265,50 @@ main {
 
 .workspace {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 300px;
   gap: 0;
   padding: 0;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 48px);
 }
 
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 16px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  max-height: calc(100vh - 56px);
+  gap: 12px;
+  padding: 20px;
+  background: var(--bg);
 }
 
 .clips-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface-strong) 60%, transparent);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 8px 0;
+  background: transparent;
 }
 
 .clips-header h2 {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .clips-header small {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 0;
-  height: calc(100vh - 56px);
-  overflow-y: auto;
-  background: var(--surface-strong);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
 }
 
 .sidebar__section {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -445,48 +439,42 @@ select:focus {
 
 .floating-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-  padding: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  padding: 4px;
 }
 
 .clip-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 140px;
+  gap: 6px;
+  min-height: 120px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 10px;
   background: var(--surface);
-  padding: 12px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 4%), 0 4px 12px rgb(0 0 0 / 6%);
   cursor: pointer;
-  animation: float-in 220ms ease both;
-  transition: all 140ms ease;
+  animation: card-float 300ms ease-out;
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
   position: relative;
-  overflow: hidden;
-}
-
-.clip-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--rose) 0%, var(--amber) 50%, var(--teal) 100%);
-  opacity: 0;
-  transition: opacity 140ms ease;
-}
-
-.clip-card:hover::before {
-  opacity: 1;
 }
 
 .clip-card:hover {
   border-color: var(--teal);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
-  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%), 0 8px 24px rgb(0 0 0 / 12%);
+  transform: translateY(-2px);
+}
+
+@keyframes card-float {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .clip-card__bar {
@@ -704,14 +692,40 @@ select:focus {
   z-index: 50;
   display: grid;
   place-items: center;
-  background: rgb(7 11 13 / 66%);
+  background: rgb(7 11 13 / 50%);
   padding: 18px;
+  animation: modal-fade-in 200ms ease-out;
 }
 
 .modal__panel {
-  width: min(720px, 100%);
-  max-height: min(820px, calc(100vh - 36px));
+  width: min(680px, 100%);
+  max-height: min(700px, calc(100vh - 40px));
   overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 20%);
+  animation: modal-scale-in 250ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal__header {
@@ -720,16 +734,17 @@ select:focus {
   justify-content: space-between;
   gap: 14px;
   border-bottom: 1px solid var(--border);
-  padding: 16px 18px;
+  padding: 14px 16px;
 }
 
 .modal__header h2 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .modal__body {
-  padding: 18px;
+  padding: 16px;
 }
 
 .modal__actions {

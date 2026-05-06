@@ -541,15 +541,15 @@ export function App() {
                     {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
                   </div>
                   <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
-                    <Button icon={<Copy size={13} />} onClick={() => void copyClip(clip)} size="sm">{t.copy}</Button>
-                    <Button icon={<Pencil size={13} />} onClick={() => void openEdit(clip)} size="sm">{t.edit}</Button>
-                    <Button icon={<Sparkles size={13} />} onClick={() => void cloneClip(clip)} size="sm">{t.clone}</Button>
-                    <Button icon={<Pin size={13} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "secondary"}>{t.pin}</Button>
-                    <Button icon={<Heart size={13} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "secondary"}>{t.favorite}</Button>
+                    <Button title={t.copy} icon={<Copy size={12} />} onClick={() => void copyClip(clip)} size="sm" variant="ghost" />
+                    <Button title={t.edit} icon={<Pencil size={12} />} onClick={() => void openEdit(clip)} size="sm" variant="ghost" />
+                    <Button title={t.clone} icon={<Sparkles size={12} />} onClick={() => void cloneClip(clip)} size="sm" variant="ghost" />
+                    <Button title={t.pin} icon={<Pin size={12} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "ghost"} />
+                    <Button title={t.favorite} icon={<Heart size={12} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "ghost"} />
                     {clip.encrypted ? (
-                      <Button icon={revealed[clip.id] ? <EyeOff size={13} /> : <Eye size={13} />} onClick={() => void revealClip(clip)} size="sm">{t.reveal}</Button>
+                      <Button title={t.reveal} icon={revealed[clip.id] ? <EyeOff size={12} /> : <Eye size={12} />} onClick={() => void revealClip(clip)} size="sm" variant="ghost" />
                     ) : null}
-                    <Button icon={<Trash2 size={13} />} onClick={() => deleteClip(clip)} size="sm" variant="danger">{t.delete}</Button>
+                    <Button title={t.delete} icon={<Trash2 size={12} />} onClick={() => deleteClip(clip)} size="sm" variant="ghost" />
                   </div>
                 </article>
               ))}

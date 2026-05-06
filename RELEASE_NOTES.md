@@ -1,5 +1,23 @@
 # Release Notes
 
+## v0.3.0 — OS Floating Workbench
+
+May 6, 2026.
+
+Added:
+
+- OS-style floating cards with layered shadows
+- Icon-only card action buttons
+- Removed inner scrollbars, page-level scrolling only
+- Card hover with subtle lift animation
+- v0.3.0
+
+Changed:
+
+- Cards more like floating windows
+- Buttons reduced to icons with hover tooltips
+- Content area fills full width
+
 ## v0.2.0 — OS Workbench Refactor
 
 May 6, 2026.

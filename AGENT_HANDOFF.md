@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.2.0 |
+| 当前版本 | v0.3.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-首页布局重构完成 → OS Workbench 布局重构完成
+OS Workbench 布局重构完成 → OS Floating Workbench 重构完成
 
 ---
 
@@ -32,6 +32,42 @@ Local Clipboard Vault 项目的交接文档。
 - ✅ 创建/更新 AGENT_HANDOFF.md
 - ✅ 首页布局重构（删除 Hero，进入工作台模式）
 - ✅ OS Workbench 布局重构（v0.2.0 版本升级）
+- ✅ OS Floating Workbench 重构（v0.3.0 版本升级）
+
+---
+
+## OS Floating Workbench 重构 (v0.3.0)
+
+### 目标
+
+更像真正的 OS 内容工作台，而非网页 dashboard
+
+### 修改内容
+
+**版本升级**：v0.2.0 → v0.3.0
+
+**package.json**：
+- version: "0.3.0"
+
+**App.tsx**：
+- 卡片按钮改为 icon-only + title tooltip
+- 按钮 size 13 → 12
+
+**global.css**：
+- 移除内部滚动条，改为页面级滚动
+- topbar 高度 56 → 48px，更紧凑
+- sidebar 宽度 320 → 300px
+- 卡片更小（200px min），悬浮感更强
+- Modal 添加 OS 风格 scale/fade 动画
+- sidebar 改为左侧 border，右侧 sidebar 布局
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
 
 ---
 
