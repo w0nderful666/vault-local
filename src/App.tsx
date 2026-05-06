@@ -97,6 +97,7 @@ privacyFirst: "Privacy first",
     language: "Language",
     savedFromClipboard: "Saved from clipboard",
     saved: "Saved",
+    copied: "Copied",
     clipboardDenied: "Clipboard permission denied. Use Ctrl + V manually.",
     unlockFirst: "Unlock vault before saving or revealing sensitive content.",
     imported: "JSON imported",
@@ -161,6 +162,7 @@ privacyFirst: "Privacy first",
     noResults: "No clips match the current filters.",
     privacyNote:
       "Your content never leaves this page. Data is stored in this browser only; clearing browser data removes it. Export JSON backups regularly.",
+    copied: "已复制",
   },
 } satisfies Record<Language, Record<string, string>>;
 
@@ -359,14 +361,18 @@ export function App() {
     }
   };
 
+  const lastCopyRef = useRef<string>("");
+
   const copyClip = async (clip: ClipItem) => {
+    if (clip.id === lastCopyRef.current) return;
+    lastCopyRef.current = clip.id;
     const content = clip.encrypted ? revealed[clip.id] : clip.content;
     if (clip.encrypted && !content) {
       showToast(t.unlockFirst, "danger");
       return;
     }
     await navigator.clipboard.writeText(content ?? "");
-    showToast(t.copy);
+    showToast(t.copied);
   };
 
   const revealClip = async (clip: ClipItem) => {
@@ -537,7 +543,7 @@ export function App() {
           <div className="main-content">
             <div className="floating-grid" data-testid="floating-cards">
               {filteredClips.map((clip) => (
-                <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void openEdit(clip)}>
+                <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void copyClip(clip)}>
                   <div className="clip-card__bar">
                     <span />
                     <span />

@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.5.0 |
+| 当前版本 | v0.6.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Workspace 完成 → OS Navigation 完成
+OS Navigation 完成 → OS Window System Fix 完成
 
 ---
 
@@ -31,11 +31,56 @@ OS Workspace 完成 → OS Navigation 完成
 - ✅ 修复 preflight 误报
 - ✅ 创建/更新 AGENT_HANDOFF.md
 - ✅ 首页布局重构（删除 Hero，进入工作台模式）
-- ✅ OS Workbench 布局重构（v0.2.0 版本升级）
-- ✅ OS Floating Workbench 重构（v0.3.0 版本升级）
-- ✅ OS Card Proportions 重构（v0.3.1 版本升级）
-- ✅ OS Workspace 重构（v0.4.0 版本升级）
-- ✅ OS Navigation 重构（v0.5.0 版本升级）
+- ✅ OS Workbench 布局重构（v0.2.0）
+- ✅ OS Floating Workbench 重构（v0.3.0）
+- ✅ OS Card Proportions 重构（v0.3.1）
+- ✅ OS Workspace 重构（v0.4.0）
+- ✅ OS Navigation 重构（v0.5.0）
+- ✅ OS Window System Fix（v0.6.0）
+
+---
+
+## OS Window System Fix (v0.6.0)
+
+### 目标
+
+修复 Window Layer bug，建立统一的 OS Window System
+
+### 修改内容
+
+**版本升级**：v0.5.0 → v0.6.0
+
+**App.tsx**：
+- 点击卡片改为直接复制（copyClip），不再打开编辑
+- 新增 copied toast 通知
+- Edit 按钮变为 secondary action
+
+**global.css**：
+- Modal z-index 设为 100（正确层级）
+- Modal 使用 position: fixed 全屏覆盖
+- 新增 modal-fade-in 和 modal-scale-in 动画
+- Dock 图标：32px → 40px
+- Dock hover 效果增强
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### OS Window Layer 规则
+
+1. **z-index 层级**：
+   - Dock: 30
+   - Modal: 100
+   - Toast: 110
+
+2. **点击复制逻辑**：点击卡片区域直接复制，而非打开编辑
+3. **Edit 按钮**：明确为 secondary action
+
+---
 
 ---
 

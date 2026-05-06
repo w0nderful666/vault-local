@@ -1,5 +1,25 @@
 # Release Notes
 
+## v0.6.0 — OS Window System Fix
+
+May 6, 2026.
+
+Added:
+
+- Click card to copy (direct copy interaction)
+- OS Toast notification for copy success
+- Larger dock icons (40px)
+- Fixed modal z-index and positioning
+- Card overflow fixed (word-break, line-clamp)
+- v0.6.0
+
+Changed:
+
+- Card click: openEdit → copyClip
+- Edit button is now secondary action
+- Dock icon: 32px → 40px
+- Modal: proper fixed overlay, z-index 100
+
 ## v0.5.0 — OS Navigation
 
 May 6, 2026.
