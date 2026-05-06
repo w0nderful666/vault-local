@@ -488,3 +488,81 @@ const currentVersion = pkg.version;
 - `SECURITY.md` - 安全说明
 - `docs/QUALITY_BAR.md` - 质量检查标准
 - `docs/PROJECT_LEVELS.md` - 项目等级定义
+
+---
+
+## 长期规则：版本升级同步
+
+### 问题根因
+
+每次版本升级（如 v0.1.0 → v0.2.0），测试脚本中的版本检测未同步。
+
+### 为什么会出现这个问题
+
+1. 测试脚本使用硬编码版本号（如 `"0.1.0"`）
+2. 每次发版需要手动同步更新多个文件
+
+### 应形成的长期规则
+
+**版本升级必须同步更新**：
+- `package.json` version
+- `src/config/siteMeta.ts` version
+- `scripts/run-self-test.mjs` 版本检测
+- `scripts/preflight.mjs` 版本检测
+- `RELEASE_NOTES.md`
+- `AGENT_HANDOFF.md` 当前版本
+
+### 版本号命名规范（遵循 semver）
+
+- **patch**（修复）：v0.x.0 → v0.x.1
+- **minor**（功能）：v0.x.0 → v0.x+1.0
+- **major**（重构）：v0.x.0 → v0.x+1.0（重大 UI 变化）
+
+---
+
+## 长期规则：OS Window System
+
+### 项目演进方向
+
+项目目标是建立一个"Local First OS Workspace"，核心原则：
+
+1. **无网页感**：不是网页 dashboard / admin panel / blog layout
+2. **全屏 workspace**：内容铺满整个页面，不是中间容器
+3. **无 section 标题**：不显示 "Recent clips", "Quick Capture" 等网页标题
+4. **所有区域统一窗口化**：Clips / Quick Capture / Search / Filter 统一 OS Window 风格
+5. **点击内容直接复制**：最高频动作是复制，不是编辑
+
+### Window Layer 层级
+
+| 元素 | z-index |
+|-----|---------|
+| Topbar | 20 |
+| Dock | 30 |
+| Modal | 100 |
+| Toast | 110 |
+
+### 交互规则
+
+- **点击卡片**：直接复制内容（copyClip），不是打开编辑
+- **Edit 按钮**：明确为 secondary action
+- **Dock**：底部固定漂浮窗口，用于快速切换内容类型
+
+---
+
+## 长期规则：UI 重构检查清单
+
+### 每次 UI 重构必须检查
+
+1. ✅ **版本号**：是否需要升级（minor/major）
+2. ✅ **测试脚本**：run-self-test.mjs 和 preflight.mjs 版本检测
+3. ✅ **RELEASE_NOTES.md**：新增版本记录
+4. ✅ **AGENT_HANDOFF.md**：更新当前版本和完成事项
+5. ✅ **build / self-test / preflight**：验证通过
+
+### 禁止行为
+
+- ❌ 只改 spacing/padding 而不产生明显视觉变化
+- ❌ 不升级版本号就做真实修改
+- ❌ 删除已有的功能、动画或测试来绕过问题
+- ❌ 引入新框架解决小问题
+- ❌ 自动 push、自动 release（除非明确要求）
