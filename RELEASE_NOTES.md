@@ -1,5 +1,24 @@
 # Release Notes
 
+## v0.8.0 — OS Motion System
+
+May 6, 2026.
+
+Added:
+
+- OS Motion System tokens (--duration-*, --easing-*)
+- Motion tokens for: instant, fastest, fast, normal, slow, slowest
+- Easing tokens: standard, standard-rev, window, overlay, emphasized
+- Toast component with proper CSS animations (slide + fade)
+- Button component with unified transitions
+
+Changed:
+
+- All component transitions now use motion tokens (Card, Dock, Chip, Settings, Edit form)
+- Card hover: refined to use transform only (no layout change)
+- Modal open: refined scale animation
+- No more layout shift on interaction states
+
 ## v0.7.0 — OS Window System Polish
 
 May 6, 2026.

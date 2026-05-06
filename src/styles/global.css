@@ -26,6 +26,19 @@
   color: var(--text);
   font-weight: 400;
   line-height: 1.5;
+
+  --duration-instant: 0ms;
+  --duration-fastest: 80ms;
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 240ms;
+  --duration-slowest: 320ms;
+
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-standard-rev: cubic-bezier(0, 0, 0.8, 1);
+  --easing-window: cubic-bezier(0.16, 0, 0.3, 1);
+  --easing-overlay: cubic-bezier(0.3, 0, 0.7, 1);
+  --easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
 }
 
 :root[data-theme="dark"] {
@@ -129,6 +142,123 @@ a {
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--easing-standard);
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button--primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: white;
+}
+
+.button--primary:hover {
+  background: color-mix(in srgb, var(--teal) 90%, black);
+}
+
+.button--secondary {
+  background: var(--surface-strong);
+}
+
+.button--secondary:hover {
+  background: var(--surface);
+}
+
+.button--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.button--ghost:hover {
+  background: var(--surface-strong);
+}
+
+.button--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: white;
+}
+
+.button--sm {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+}
+
+.button__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  z-index: 110;
+  animation: toast-in 200ms var(--easing-standard);
+}
+
+.toast--success {
+  border-color: var(--teal);
+}
+
+.toast--warning {
+  border-color: var(--amber);
+}
+
+.toast--danger {
+  border-color: var(--danger);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
 }
 
 .app-shell {
@@ -303,8 +433,14 @@ main {
 }
 
 @keyframes modal-scale-in {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .window {
@@ -405,7 +541,9 @@ main {
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: all 150ms ease;
+  transition:
+    background var(--duration-fastest) var(--easing-standard),
+    color var(--duration-fastest) var(--easing-standard);
 }
 
 .window--preferences .window__sidebar button:hover {
@@ -612,6 +750,10 @@ select:focus {
   cursor: pointer;
   font-size: 0.72rem;
   font-weight: 700;
+  transition:
+    border-color var(--duration-fastest) var(--easing-standard),
+    background var(--duration-fastest) var(--easing-standard),
+    color var(--duration-fastest) var(--easing-standard);
 }
 
 .chip.is-active {
@@ -647,8 +789,11 @@ select:focus {
   padding: 8px 10px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 4%), 0 2px 8px rgb(0 0 0 / 5%);
   cursor: pointer;
-  animation: card-float 300ms ease-out;
-  transition: all 180ms cubic-bezier(0.2, 0, 0, 1);
+  animation: card-float var(--duration-slow) var(--easing-standard);
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
   position: relative;
 }
 
@@ -656,6 +801,10 @@ select:focus {
   border-color: var(--teal);
   box-shadow: 0 2px 8px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 10%);
   transform: translateY(-1px);
+}
+
+.clip-card:active {
+  transform: translateY(0);
 }
 
 @keyframes card-float {
@@ -778,13 +927,20 @@ select:focus {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: all 150ms ease;
+  transition:
+    background var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
 }
 
 .dock__item:hover {
   background: var(--surface);
   color: var(--text);
   transform: translateY(-2px);
+}
+
+.dock__item:active {
+  transform: translateY(0);
 }
 
 .dock__item--active {
@@ -840,7 +996,7 @@ select:focus {
   background: var(--surface-strong);
   font-size: 0.9rem;
   color: var(--text);
-  transition: border-color 150ms ease;
+  transition: border-color var(--duration-fastest) var(--easing-standard);
 }
 
 .edit-form__input:focus {
@@ -952,7 +1108,10 @@ select:focus {
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    background var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard);
 }
 
 .settings__option:hover {

@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.7.0 |
+| 当前版本 | v0.8.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Window System Fix 完成 → OS Window System Polish 完成
+OS Window System Polish 完成 → OS Motion System 完成
 
 ---
 
@@ -38,6 +38,59 @@ OS Window System Fix 完成 → OS Window System Polish 完成
 - ✅ OS Navigation 重构（v0.5.0）
 - ✅ OS Window System Fix（v0.6.0）
 - ✅ OS Window System Polish（v0.7.0）
+- ✅ OS Motion System（v0.8.0）
+
+---
+
+## OS Motion System (v0.8.0)
+
+### 目标
+
+建立统一的 OS Motion Language，消除 interaction state 导致的 layout shift
+
+### 修改内容
+
+**版本升级**：v0.7.0 → v0.8.0
+
+**global.css**：
+- 新增 Motion Tokens (CSS variables)
+  - --duration-instant, --duration-fastest, --duration-fast, --duration-normal, --duration-slow, --duration-slowest
+  - --easing-standard, --easing-standard-rev, --easing-window, --easing-overlay, --easing-emphasized
+- 新增 Button CSS 样式（之前缺失）
+- 新增 Toast CSS 动画样式
+- 更新所有组件 transition 使用 motion tokens
+
+**修改的组件**：
+- Card hover: 只用 transform，不改变布局
+- Dock interaction: 使用统一的 motion tokens
+- Modal open: 更精细的 scale 动画
+- Chip, Settings, Edit form: 统一 transition
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### OS Motion System 规则
+
+1. **No Layout Shift**：任何 interaction state (hover, active, focus, copied) 都不能改变 typography, card sizing, grid alignment
+
+2. **统一 Motion Tokens**：
+   - Duration: instant(0ms), fastest(80ms), fast(120ms), normal(180ms), slow(240ms), slowest(320ms)
+   - Easing: standard, standard-rev, window, overlay, emphasized
+
+3. **动画原则**：
+   - 轻 (lightweight)
+   - 稳 (smooth, no bounce/elastic)
+   - 短 (fast durations)
+   - 统一 (same tokens across all components)
+
+4. **性能优先**：
+   - 使用 transform 和 opacity
+   - 避免 layout thrashing
 
 ---
 

@@ -93,10 +93,10 @@ async function checkDocs() {
   if (readme.includes("Secure Vault") && readme.includes("Web Crypto")) pass("README Secure Vault section exists");
   else fail("README Secure Vault section missing");
 
-  if (release.includes("v0.7.0")) pass("RELEASE_NOTES v0.7.0 exists");
-  else fail("RELEASE_NOTES missing v0.7.0");
+  if (release.includes("v0.8.0")) pass("RELEASE_NOTES v0.8.0 exists");
+  else fail("RELEASE_NOTES missing v0.8.0");
 
-  if (pkg.version === "0.7.0") pass("package.json version is correct");
+  if (pkg.version === "0.8.0") pass("package.json version is correct");
   else fail(`package.json version is ${pkg.version}`);
 }
 
