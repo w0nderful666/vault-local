@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.1.0 |
+| 当前版本 | v0.2.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-AI 接手初始化与稳定基线完成 → 首页布局重构完成
+首页布局重构完成 → OS Workbench 布局重构完成
 
 ---
 
@@ -31,10 +31,66 @@ AI 接手初始化与稳定基线完成 → 首页布局重构完成
 - ✅ 修复 preflight 误报
 - ✅ 创建/更新 AGENT_HANDOFF.md
 - ✅ 首页布局重构（删除 Hero，进入工作台模式）
+- ✅ OS Workbench 布局重构（v0.2.0 版本升级）
 
 ---
 
-## 首页布局重构 (v0.1.0 迭代)
+## OS Workbench 布局重构 (v0.2.0)
+
+### 目标
+
+用户打开网页 → 立刻看到内容 → 立刻能操作
+更像真正的 OS 内容工作台而非 landing page
+
+### 修改内容
+
+**版本升级**：v0.1.0 → v0.2.0
+
+**package.json**：
+- version: "0.2.0"
+
+**src/config/siteMeta.ts**：
+- version: "0.2.0"
+
+**App.tsx**：
+- 精简 main-content 为紧凑内容区
+- Sidebar 分为多个 sidebar__section 区块
+- 卡片按钮 icon size: 15 → 13
+- Quick Capture 更紧凑
+
+**global.css**：
+- workspace: 固定 1fr 320px 布局
+- main-content: 紧凑 padding 16px，100vh 布局
+- sidebar: 固定宽度 320px，分区布局
+- sidebar__section: 独立 padding/border 区
+- 卡片: 220px min，更小尺寸，gradient hover bar
+- chip/button: 更小尺寸更紧凑
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### 布局变化
+
+**v0.2.0 布局**：
+```
+┌────────────────────────────────────────────┐
+│ topbar: v0.2.0 • Local First            │
+├──────────────────┬───────────────────────┤
+│ Content Area    │ Sidebar (320px)       │
+│ - Clips Header │ - Quick Capture     │
+│ - Cards Grid   │ - Search           │
+│               │ - Type Filters     │
+│               │ - Tag Filter       │
+│               │ - Actions         │
+├──────────────────┴───────────────────────┤
+│ Advanced (collapsible)                │
+└────────────────────────────────────────────┘
+```
 
 ### 背景
 

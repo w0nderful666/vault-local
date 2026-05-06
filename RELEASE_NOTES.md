@@ -1,5 +1,24 @@
 # Release Notes
 
+## v0.2.0 — OS Workbench Refactor
+
+May 6, 2026.
+
+Added:
+
+- OS-style workbench layout (left: content area, right: sidebar)
+- Compact sidebar sections with clear visual hierarchy
+- Quick Capture as fixed sidebar panel
+- Card redesign: smaller, more OS-like floating windows with color bar indicator
+- Tighter spacing and higher information density
+- Version bump to v0.2.0
+
+Changed:
+
+- Removed hero section → now direct-to-work mode
+- Sidebar becomes fixed system panel
+- Cards are smaller (220px min) with gradient hover bar
+
 ## v0.1.0 — Local Clipboard Vault C-Level Launch
 
 May 5, 2026.

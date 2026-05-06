@@ -515,7 +515,7 @@ export function App() {
           <div className="main-content">
             <div className="clips-header">
               <h2>{t.recentClips}</h2>
-              <small>{filteredClips.length} / {clips.length} clips</small>
+              <small>{filteredClips.length} / {clips.length}</small>
             </div>
             <div className="floating-grid" data-testid="floating-cards">
               {filteredClips.map((clip) => (
@@ -541,15 +541,15 @@ export function App() {
                     {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
                   </div>
                   <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
-                    <Button icon={<Copy size={15} />} onClick={() => void copyClip(clip)} size="sm">{t.copy}</Button>
-                    <Button icon={<Pencil size={15} />} onClick={() => void openEdit(clip)} size="sm">{t.edit}</Button>
-                    <Button icon={<Sparkles size={15} />} onClick={() => void cloneClip(clip)} size="sm">{t.clone}</Button>
-                    <Button icon={<Pin size={15} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "secondary"}>{t.pin}</Button>
-                    <Button icon={<Heart size={15} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "secondary"}>{t.favorite}</Button>
+                    <Button icon={<Copy size={13} />} onClick={() => void copyClip(clip)} size="sm">{t.copy}</Button>
+                    <Button icon={<Pencil size={13} />} onClick={() => void openEdit(clip)} size="sm">{t.edit}</Button>
+                    <Button icon={<Sparkles size={13} />} onClick={() => void cloneClip(clip)} size="sm">{t.clone}</Button>
+                    <Button icon={<Pin size={13} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "secondary"}>{t.pin}</Button>
+                    <Button icon={<Heart size={13} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "secondary"}>{t.favorite}</Button>
                     {clip.encrypted ? (
-                      <Button icon={revealed[clip.id] ? <EyeOff size={15} /> : <Eye size={15} />} onClick={() => void revealClip(clip)} size="sm">{t.reveal}</Button>
+                      <Button icon={revealed[clip.id] ? <EyeOff size={13} /> : <Eye size={13} />} onClick={() => void revealClip(clip)} size="sm">{t.reveal}</Button>
                     ) : null}
-                    <Button icon={<Trash2 size={15} />} onClick={() => deleteClip(clip)} size="sm" variant="danger">{t.delete}</Button>
+                    <Button icon={<Trash2 size={13} />} onClick={() => deleteClip(clip)} size="sm" variant="danger">{t.delete}</Button>
                   </div>
                 </article>
               ))}
@@ -558,7 +558,7 @@ export function App() {
           </div>
 
           <aside className="sidebar">
-            <div className="capture-dock" data-testid="quick-capture" id="capture">
+            <div className="sidebar__section" data-testid="quick-capture" id="capture">
               <p className="eyebrow">{t.quickCapture}</p>
               <textarea
                 aria-label={t.manualPaste}
@@ -568,7 +568,7 @@ export function App() {
                     void saveNewContent(manualText);
                   }
                 }}
-                placeholder="Paste prompt, command, token placeholder, JSON, Markdown... (Ctrl+Enter)"
+                placeholder="Paste content... (Ctrl+Enter)"
                 value={manualText}
               />
               <div className="capture-dock__actions">
@@ -580,69 +580,80 @@ export function App() {
                   />
                   {t.sensitive}
                 </label>
-                <Button icon={<Plus size={17} />} onClick={() => void saveNewContent(manualText)}>
+                <Button icon={<Plus size={15} />} onClick={() => void saveNewContent(manualText)} size="sm">
                   {t.saveContent}
                 </Button>
               </div>
             </div>
 
-            <label className="search-box">
-              <Search size={17} />
-              <input
-                aria-label={t.search}
-                onChange={(event) => setFilter((current) => ({ ...current, query: event.target.value }))}
-                placeholder={t.search}
-                value={filter.query}
-              />
-            </label>
+            <div className="sidebar__section">
+              <label className="search-box">
+                <Search size={15} />
+                <input
+                  aria-label={t.search}
+                  onChange={(event) => setFilter((current) => ({ ...current, query: event.target.value }))}
+                  placeholder={t.search}
+                  value={filter.query}
+                />
+              </label>
+            </div>
 
-            <div className="chip-row">
-              <button className={filter.type === "All" ? "chip is-active" : "chip"} onClick={() => setFilter((current) => ({ ...current, type: "All" }))} type="button">All</button>
-              {CLIP_TYPES.map((type) => (
-                <button
-                  className={filter.type === type ? "chip is-active" : "chip"}
-                  key={type}
-                  onClick={() => setFilter((current) => ({ ...current, type }))}
-                  type="button"
+            <div className="sidebar__section">
+              <div className="chip-row">
+                <button className={filter.type === "All" ? "chip is-active" : "chip"} onClick={() => setFilter((current) => ({ ...current, type: "All" }))} type="button">All</button>
+                {CLIP_TYPES.map((type) => (
+                  <button
+                    className={filter.type === type ? "chip is-active" : "chip"}
+                    key={type}
+                    onClick={() => setFilter((current) => ({ ...current, type }))}
+                    type="button"
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="sidebar__section">
+              <select
+                aria-label={t.tags}
+                onChange={(event) => setFilter((current) => ({ ...current, tag: event.target.value }))}
+                value={filter.tag}
+              >
+                <option value="">All tags</option>
+                {tags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
+              </select>
+            </div>
+
+            <div className="sidebar__section">
+              <div className="button-row">
+                <Button
+                  icon={<Heart size={14} />}
+                  onClick={() => setFilter((current) => ({ ...current, onlyFavorite: !current.onlyFavorite }))}
+                  variant={filter.onlyFavorite ? "primary" : "secondary"}
+                  size="sm"
                 >
-                  {type}
-                </button>
-              ))}
+                  {t.favorite}
+                </Button>
+                <Button
+                  icon={<Pin size={14} />}
+                  onClick={() => setFilter((current) => ({ ...current, onlyPinned: !current.onlyPinned }))}
+                  variant={filter.onlyPinned ? "primary" : "secondary"}
+                  size="sm"
+                >
+                  {t.pin}
+                </Button>
+              </div>
             </div>
 
-            <select
-              aria-label={t.tags}
-              onChange={(event) => setFilter((current) => ({ ...current, tag: event.target.value }))}
-              value={filter.tag}
-            >
-              <option value="">All tags</option>
-              {tags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
-            </select>
-
-            <div className="button-row">
-              <Button
-                icon={<Heart size={16} />}
-                onClick={() => setFilter((current) => ({ ...current, onlyFavorite: !current.onlyFavorite }))}
-                variant={filter.onlyFavorite ? "primary" : "secondary"}
-              >
-                {t.favorite}
+            <div className="sidebar__section">
+              <Button onClick={() => setFilter({ query: "", type: "All", tag: "", onlyPinned: false, onlyFavorite: false })} size="sm">
+                Clear · {filteredClips.length}
               </Button>
-              <Button
-                icon={<Pin size={16} />}
-                onClick={() => setFilter((current) => ({ ...current, onlyPinned: !current.onlyPinned }))}
-                variant={filter.onlyPinned ? "primary" : "secondary"}
-              >
-                {t.pin}
+              <Button icon={<Clipboard size={15} />} onClick={importFromClipboard} variant="primary" size="sm">
+                {t.pasteFromClipboard}
               </Button>
             </div>
-
-            <Button onClick={() => setFilter({ query: "", type: "All", tag: "", onlyPinned: false, onlyFavorite: false })}>
-              Clear filters · {filteredClips.length}
-            </Button>
-
-            <Button icon={<Clipboard size={17} />} onClick={importFromClipboard} variant="primary">
-              {t.pasteFromClipboard}
-            </Button>
           </aside>
         </section>
 
