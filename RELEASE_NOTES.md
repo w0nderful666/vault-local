@@ -1,5 +1,27 @@
 # Release Notes
 
+## v0.7.0 — OS Window System Polish
+
+May 6, 2026.
+
+Added:
+
+- Unified OS Window Design System
+- Edit Window with OS Floating Window styling (window chrome, structured content)
+- Settings Window with macOS Preferences-style sidebar (Appearance, Workspace, Advanced)
+- Advanced Tools merged into Settings (no longer in page footer)
+- Global overflow protection (word-break, overflow-wrap, min-width)
+- Window classes: `.window`, `.window__header`, `.window__chrome`, `.window__toolbar`, `.window__content`, `.window__footer`
+- Edit form: proper grouping, label hierarchy, styled checkboxes
+- Settings tabs: sidebar navigation with icons
+
+Changed:
+
+- Edit Modal: now uses OS Window structure with traffic lights
+- Settings Modal: now uses sidebar + content layout
+- Advanced section: removed from main workspace, integrated into Settings
+- Global CSS: comprehensive overflow protection for all elements
+
 ## v0.6.0 — OS Window System Fix
 
 May 6, 2026.

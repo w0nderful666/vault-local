@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.6.0 |
+| 当前版本 | v0.7.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Navigation 完成 → OS Window System Fix 完成
+OS Window System Fix 完成 → OS Window System Polish 完成
 
 ---
 
@@ -37,6 +37,63 @@ OS Navigation 完成 → OS Window System Fix 完成
 - ✅ OS Workspace 重构（v0.4.0）
 - ✅ OS Navigation 重构（v0.5.0）
 - ✅ OS Window System Fix（v0.6.0）
+- ✅ OS Window System Polish（v0.7.0）
+
+---
+
+## OS Window System Polish (v0.7.0)
+
+### 目标
+
+统一 OS Window Design System，将 Edit/Settings/Advanced 升级为真正的 OS 浮动窗口风格
+
+### 修改内容
+
+**版本升级**：v0.6.0 → v0.7.0
+
+**App.tsx**：
+- Edit Window：新增 OS Window 结构（window chrome, header, content, footer）
+- Settings Window：改为 sidebar + content 布局（macOS Preferences 风格）
+- Advanced Tools：移除页面底部 section，合并进入 Settings 的 Advanced tab
+- 新增 settingsTab state（appearance | workspace | advanced）
+
+**global.css**：
+- 新增全局 overflow 保护：`* { max-width: 100% }`, `overflow-wrap: break-word`
+- 新增 OS Window Design System：`.window`, `.window__header`, `.window__chrome`, `.window__toolbar`, `.window__content`, `.window__footer`
+- 新增 `.window--preferences`：sidebar + main 两栏布局
+- 新增 `.edit-form` 样式：group, label, input, textarea, select, flags, note
+- 新增 `.settings__option`：button 样式的选项（替代 radio/checkbox）
+- 更新 `.modal__panel--window` 和 `.modal__body--window`
+
+**Modal.tsx**：
+- 新增检测逻辑：如果 children 包含 `.window` class，则隐藏默认 header
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### OS Window Design System 规则
+
+1. **统一 Window 结构**：
+   - `.window`: 根容器，flex column
+   - `.window__header`: 顶部，包含 chrome + title
+   - `.window__chrome`: 交通灯按钮 (红/黄/绿)
+   - `.window__content`: 内容区域，可滚动
+   - `.window__footer`: 底部操作栏
+
+2. **Preferences 布局**：
+   - `.window--preferences`: grid 两栏 (160px sidebar + 1fr content)
+   - sidebar 包含分类按钮，带 icon
+   - content 包含该分类的设置项
+
+3. **Overflow 安全**：
+   - 全局 `* { max-width: 100% }`
+   - `input/textarea { min-width: 0; max-width: 100% }`
+   - `p/h1-h6 { overflow-wrap: break-word; word-break: break-word }`
 
 ---
 
@@ -531,6 +588,7 @@ const currentVersion = pkg.version;
 3. **无 section 标题**：不显示 "Recent clips", "Quick Capture" 等网页标题
 4. **所有区域统一窗口化**：Clips / Quick Capture / Search / Filter 统一 OS Window 风格
 5. **点击内容直接复制**：最高频动作是复制，不是编辑
+6. **统一 Window Design System**：所有浮动窗口（Edit/Settings/Advanced）必须使用统一的 OS Window 语言
 
 ### Window Layer 层级
 
@@ -546,6 +604,42 @@ const currentVersion = pkg.version;
 - **点击卡片**：直接复制内容（copyClip），不是打开编辑
 - **Edit 按钮**：明确为 secondary action
 - **Dock**：底部固定漂浮窗口，用于快速切换内容类型
+- **Settings**：使用 macOS Preferences 风格的 sidebar + content 布局
+
+### OS Window Design System (v0.7.0+)
+
+**Window 结构**（所有 Modal/Window 必须使用）：
+```
+.window
+├── .window__header (可选，如果 Modal 自带 header 则省略)
+│   ├── .window__chrome (交通灯按钮)
+│   ├── .window__title
+│   └── 右侧占位区
+├── .window__toolbar (可选)
+├── .window__content (主要内容)
+└── .window__footer (操作按钮)
+```
+
+**Preferences 布局**：
+```
+.window--preferences (grid 两栏)
+├── .window__sidebar (160px，分类按钮)
+└── .window__main
+    ├── .window__header
+    ├── .window__content
+    └── .window__footer
+```
+
+**Overflow 安全规则**：
+- `* { max-width: 100% }` - 防止撑破容器
+- `input/textarea { min-width: 0; max-width: 100% }` - 输入框不撑破
+- `p/h1-h6 { overflow-wrap: break-word; word-break: break-word }` - 长文本换行
+
+**统一样式规则**：
+- 所有窗口使用相同的 border-radius (12px)
+- 所有窗口使用相同的 box-shadow
+- 所有窗口使用相同的 padding system (14px)
+- Edit/Settings/Advanced 不再使用原始 HTML 表单
 
 ---
 

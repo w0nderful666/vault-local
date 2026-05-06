@@ -248,6 +248,7 @@ export function App() {
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [dockFilter, setDockFilter] = useState<ClipType | "All">("All");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<"appearance" | "workspace" | "advanced">("appearance");
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const t = text[language];
   const vaultUnlocked = vaultPassword.length > 0;
@@ -680,66 +681,6 @@ export function App() {
           </aside>
         </div>
 
-        <section className="advanced section" id="advanced">
-          <details className="advanced__details">
-            <summary className="advanced__summary">
-              <span>Advanced Tools</span>
-              <small>{t.privacyFirst} · {t.localOnly} · {t.noBackend}</small>
-            </summary>
-            <div className="advanced__content">
-              <div className="vault-panel">
-                <div className="vault-panel__status">
-                  <span className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"} />
-                  <strong>{vaultUnlocked ? t.unlocked : t.locked}</strong>
-                  <small>{AUTO_LOCK_MINUTES} min auto lock</small>
-                </div>
-                <label className="field">
-                  <span>{t.masterPassword}</span>
-                  <input
-                    autoComplete="off"
-                    onChange={(event) => setPasswordInput(event.target.value)}
-                    placeholder="Never saved"
-                    type="password"
-                    value={passwordInput}
-                  />
-                </label>
-                <div className="button-row">
-                  <Button
-                    icon={<ShieldCheck size={17} />}
-                    onClick={() => {
-                      if (!passwordInput) return showToast(t.unlockFirst, "danger");
-                      setVaultPassword(passwordInput);
-                      setPasswordInput("");
-                      showToast(t.unlocked);
-                    }}
-                    variant="primary"
-                  >
-                    {t.unlockVault}
-                  </Button>
-                  <Button icon={<Lock size={17} />} onClick={lockVault}>
-                    {t.lockVault}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="advanced__actions">
-                <p className="privacy-note">{t.privacyNote}</p>
-                <input
-                  accept="application/json"
-                  hidden
-                  onChange={(event) => void importJson(event.target.files?.[0])}
-                  ref={importInputRef}
-                  type="file"
-                />
-                <Button icon={<Upload size={17} />} onClick={() => importInputRef.current?.click()}>{t.importJson}</Button>
-                <Button icon={<Download size={17} />} onClick={exportJson}>{t.exportJson}</Button>
-                <Button icon={<FileJson size={17} />} onClick={() => setClips(sortClips(sampleClips))}>{t.loadSample}</Button>
-                <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">{t.clearAll}</Button>
-              </div>
-            </div>
-          </details>
-        </section>
-
         <div className="dock">
           <div className="dock__items">
             <button
@@ -775,83 +716,274 @@ export function App() {
       </main>
 
       <Modal closeLabel="Close" isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} title={t.settings}>
-        <div className="settings-panel">
-          <div className="settings__section">
-            <h3>{t.appearance}</h3>
-            <div className="settings__options">
-              <label className="check">
-                <input
-                  type="radio"
-                  name="theme"
-                  checked={theme === "light"}
-                  onChange={() => setTheme("light")}
-                />
-                {t.light}
-              </label>
-              <label className="check">
-                <input
-                  type="radio"
-                  name="theme"
-                  checked={theme === "dark"}
-                  onChange={() => setTheme("dark")}
-                />
-                {t.dark}
-              </label>
-              <label className="check">
-                <input
-                  type="radio"
-                  name="theme"
-                  checked={theme === "light" || theme === "dark"}
-                  onChange={() => {}}
-                />
-                {t.auto}
-              </label>
-            </div>
+        <div className="window window--preferences">
+          <div className="window__sidebar">
+            <button
+              className={settingsTab === "appearance" ? "is-active" : ""}
+              onClick={() => setSettingsTab("appearance")}
+            >
+              <Sun size={16} />
+              <span>{t.appearance}</span>
+            </button>
+            <button
+              className={settingsTab === "workspace" ? "is-active" : ""}
+              onClick={() => setSettingsTab("workspace")}
+            >
+              <Clipboard size={16} />
+              <span>Workspace</span>
+            </button>
+            <button
+              className={settingsTab === "advanced" ? "is-active" : ""}
+              onClick={() => setSettingsTab("advanced")}
+            >
+              <ShieldCheck size={16} />
+              <span>Advanced</span>
+            </button>
           </div>
-          <div className="settings__section">
-            <h3>{t.language}</h3>
-            <div className="settings__options">
-              <Button onClick={() => setLanguage("zh")} variant={language === "zh" ? "primary" : "secondary"}>中文</Button>
-              <Button onClick={() => setLanguage("en")} variant={language === "en" ? "primary" : "secondary"}>English</Button>
-            </div>
+          <div className="window__main">
+            {settingsTab === "appearance" && (
+              <>
+                <div className="window__header">
+                  <div className="window__chrome">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <span className="window__title">{t.appearance}</span>
+                  <span style={{ width: 44 }} />
+                </div>
+                <div className="window__content">
+                  <div className="settings-panel">
+                    <div className="settings__section">
+                      <h3>{t.theme}</h3>
+                      <div className="settings__options">
+                        <button
+                          className={`settings__option ${theme === "light" ? "is-active" : ""}`}
+                          onClick={() => setTheme("light")}
+                        >
+                          <Sun size={14} />
+                          {t.light}
+                        </button>
+                        <button
+                          className={`settings__option ${theme === "dark" ? "is-active" : ""}`}
+                          onClick={() => setTheme("dark")}
+                        >
+                          <Moon size={14} />
+                          {t.dark}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="settings__section">
+                      <h3>{t.language}</h3>
+                      <div className="settings__options">
+                        <button
+                          className={`settings__option ${language === "zh" ? "is-active" : ""}`}
+                          onClick={() => setLanguage("zh")}
+                        >
+                          中文
+                        </button>
+                        <button
+                          className={`settings__option ${language === "en" ? "is-active" : ""}`}
+                          onClick={() => setLanguage("en")}
+                        >
+                          English
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {settingsTab === "workspace" && (
+              <>
+                <div className="window__header">
+                  <div className="window__chrome">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <span className="window__title">Workspace</span>
+                  <span style={{ width: 44 }} />
+                </div>
+                <div className="window__content">
+                  <div className="settings-panel">
+                    <div className="settings__section">
+                      <h3>Display</h3>
+                      <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>
+                        Workspace display settings coming soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {settingsTab === "advanced" && (
+              <>
+                <div className="window__header">
+                  <div className="window__chrome">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <span className="window__title">Advanced</span>
+                  <span style={{ width: 44 }} />
+                </div>
+                <div className="window__content">
+                  <div className="settings-panel">
+                    <div className="settings__section">
+                      <h3>Vault</h3>
+                      <div className="vault-panel">
+                        <div className="vault-panel__status">
+                          <span className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"} />
+                          <strong>{vaultUnlocked ? t.unlocked : t.locked}</strong>
+                          <small>{AUTO_LOCK_MINUTES} min auto lock</small>
+                        </div>
+                        <label className="field">
+                          <span>{t.masterPassword}</span>
+                          <input
+                            autoComplete="off"
+                            onChange={(event) => setPasswordInput(event.target.value)}
+                            placeholder="Never saved"
+                            type="password"
+                            value={passwordInput}
+                          />
+                        </label>
+                        <div className="button-row">
+                          <Button
+                            icon={<ShieldCheck size={17} />}
+                            onClick={() => {
+                              if (!passwordInput) return showToast(t.unlockFirst, "danger");
+                              setVaultPassword(passwordInput);
+                              setPasswordInput("");
+                              showToast(t.unlocked);
+                            }}
+                            variant="primary"
+                          >
+                            {t.unlockVault}
+                          </Button>
+                          <Button icon={<Lock size={17} />} onClick={lockVault}>
+                            {t.lockVault}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="settings__section">
+                      <h3>Data</h3>
+                      <div className="settings__options">
+                        <input
+                          accept="application/json"
+                          hidden
+                          onChange={(event) => void importJson(event.target.files?.[0])}
+                          ref={importInputRef}
+                          type="file"
+                        />
+                        <Button icon={<Upload size={17} />} onClick={() => importInputRef.current?.click()}>{t.importJson}</Button>
+                        <Button icon={<Download size={17} />} onClick={exportJson}>{t.exportJson}</Button>
+                        <Button icon={<FileJson size={17} />} onClick={() => setClips(sortClips(sampleClips))}>{t.loadSample}</Button>
+                        <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">{t.clearAll}</Button>
+                      </div>
+                    </div>
+                    <div className="settings__section">
+                      <p className="privacy-note">{t.privacyNote}</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Modal>
 
       <Modal closeLabel="Close" isOpen={Boolean(editing)} onClose={() => setEditing(null)} title={editing?.title ?? t.details}>
         {editing ? (
-          <div className="edit-form">
-            <label className="field">
-              <span>Title</span>
-              <input value={editing.title} onChange={(event) => setEditing({ ...editing, title: event.target.value })} />
-            </label>
-            <label className="field">
-              <span>{t.type}</span>
-              <select value={editing.type} onChange={(event) => setEditing({ ...editing, type: event.target.value as ClipType })}>
-                {CLIP_TYPES.map((type) => <option key={type}>{type}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>Content</span>
-              <textarea value={editContent} onChange={(event) => setEditContent(event.target.value)} />
-            </label>
-            <label className="field">
-              <span>{t.tags}</span>
-              <input value={editTags} onChange={(event) => setEditTags(event.target.value)} />
-            </label>
-            <label className="field">
-              <span>Note</span>
-              <input value={editing.note} onChange={(event) => setEditing({ ...editing, note: event.target.value })} />
-            </label>
-            <div className="edit-flags">
-              <label className="check"><input checked={editing.sensitive} onChange={(event) => setEditing({ ...editing, sensitive: event.target.checked })} type="checkbox" />{t.sensitive}</label>
-              <label className="check"><input checked={editing.pinned} onChange={(event) => setEditing({ ...editing, pinned: event.target.checked })} type="checkbox" />{t.pin}</label>
-              <label className="check"><input checked={editing.favorite} onChange={(event) => setEditing({ ...editing, favorite: event.target.checked })} type="checkbox" />{t.favorite}</label>
+          <div className="window">
+            <div className="window__header">
+              <div className="window__chrome">
+                <span />
+                <span />
+                <span />
+              </div>
+              <span className="window__title">{editing?.title ?? t.details}</span>
+              <span style={{ width: 44 }} />
             </div>
-            {editing.sensitive && !editing.encrypted ? <p className="legacy-note">Legacy sensitive item: re-save while vault is unlocked to enable encryption.</p> : null}
-            <div className="modal__actions">
+            <div className="window__content">
+              <div className="edit-form">
+                <div className="edit-form__group">
+                  <label className="edit-form__label">Title</label>
+                  <input
+                    className="edit-form__input edit-form__input--title"
+                    value={editing.title}
+                    onChange={(event) => setEditing({ ...editing, title: event.target.value })}
+                  />
+                </div>
+                <div className="edit-form__group">
+                  <label className="edit-form__label">{t.type}</label>
+                  <select
+                    className="edit-form__input edit-form__select"
+                    value={editing.type}
+                    onChange={(event) => setEditing({ ...editing, type: event.target.value as ClipType })}
+                  >
+                    {CLIP_TYPES.map((type) => <option key={type}>{type}</option>)}
+                  </select>
+                </div>
+                <div className="edit-form__group">
+                  <label className="edit-form__label">Content</label>
+                  <textarea
+                    className="edit-form__input edit-form__textarea"
+                    value={editContent}
+                    onChange={(event) => setEditContent(event.target.value)}
+                  />
+                </div>
+                <div className="edit-form__group">
+                  <label className="edit-form__label">{t.tags}</label>
+                  <input
+                    className="edit-form__input"
+                    value={editTags}
+                    onChange={(event) => setEditTags(event.target.value)}
+                  />
+                </div>
+                <div className="edit-form__group">
+                  <label className="edit-form__label">Note</label>
+                  <input
+                    className="edit-form__input"
+                    value={editing.note}
+                    onChange={(event) => setEditing({ ...editing, note: event.target.value })}
+                  />
+                </div>
+                <div className="edit-form__flags">
+                  <label className="edit-form__flag">
+                    <input
+                      type="checkbox"
+                      checked={editing.sensitive}
+                      onChange={(event) => setEditing({ ...editing, sensitive: event.target.checked })}
+                    />
+                    {t.sensitive}
+                  </label>
+                  <label className="edit-form__flag">
+                    <input
+                      type="checkbox"
+                      checked={editing.pinned}
+                      onChange={(event) => setEditing({ ...editing, pinned: event.target.checked })}
+                    />
+                    {t.pin}
+                  </label>
+                  <label className="edit-form__flag">
+                    <input
+                      type="checkbox"
+                      checked={editing.favorite}
+                      onChange={(event) => setEditing({ ...editing, favorite: event.target.checked })}
+                    />
+                    {t.favorite}
+                  </label>
+                </div>
+                {editing.sensitive && !editing.encrypted ? (
+                  <p className="edit-form__note">Legacy sensitive item: re-save while vault is unlocked to enable encryption.</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="window__footer">
+              <Button onClick={() => setEditing(null)} variant="ghost">Close</Button>
               <Button icon={<ShieldCheck size={17} />} onClick={() => void saveEdit()} variant="primary">{t.saveContent}</Button>
-              <Button onClick={() => setEditing(null)}>Close</Button>
             </div>
           </div>
         ) : null}
