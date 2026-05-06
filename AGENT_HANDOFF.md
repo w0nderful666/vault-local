@@ -168,6 +168,47 @@ npm run preflight # PASS
 
 ---
 
+## 长期规则：版本升级时必须同步测试脚本
+
+### 问题根因
+
+本次 v0.1.0 → v0.2.0 版本升级时，`scripts/run-self-test.mjs` 和 `scripts/preflight.mjs` 中硬编码了版本号检测。
+
+导致：
+- self-test FAIL: `package.json version is 0.1.0` 检测失败
+- preflight FAIL: `RELEASE_NOTES v0.1.0 exists` 检测失败
+
+### 为什么会出现这个问题
+
+1. 测试脚本使用了硬编码版本号（如 `"0.1.0"`）
+2. 每次发版需要手动同步更新测试脚本
+3. 没有自动检测当前 package.json version 的机制
+
+### 后续应该如何避免
+
+**方案 A**：测试脚本改为动态读取 package.json version
+```javascript
+import { readFile } from "node:fs/promises";
+const pkg = JSON.parse(await readFile("package.json", "utf8"));
+const currentVersion = pkg.version;
+```
+
+**方案 B**：版本检测改为向后兼容检测
+- 检测 RELEASE_NOTES.md 包含任何 v0.x.0 版本
+- 而不是精确匹配某个版本
+
+### 应形成的长期规则
+
+1. 任何版本升级（如 v0.1.0 → v0.2.0）必须：
+   - 同步更新 `scripts/run-self-test.mjs` 版本检测
+   - 同步更新 `scripts/preflight.mjs` 版本检测
+   - 同步更新 `RELEASE_NOTES.md`
+   - 同步更新 `AGENT_HANDOFF.md` 当前版本
+
+2. 或者：重构测试脚本为动态版本检测（推荐后续优化）
+
+---
+
 ## preflight 修复记录
 
 ### 修复前（误报）
