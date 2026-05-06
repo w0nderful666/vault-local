@@ -1,5 +1,24 @@
 # Release Notes
 
+## v0.4.0 — OS Workspace
+
+May 6, 2026.
+
+Added:
+
+- Full-width workspace (removed container max-width)
+- No section headers (removed "Recent clips", "Quick Capture" titles)
+- All regions unified as OS Windows
+- Floating window system layout
+- v0.4.0
+
+Changed:
+
+- main-content: 100% width, no container
+- Removed all "section title" elements
+- All panels as floating windows
+- Unified OS window style
+
 ## v0.3.1 — OS Card Proportions
 
 May 6, 2026.

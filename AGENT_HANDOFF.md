@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.3.1 |
+| 当前版本 | v0.4.0 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Floating Workbench 重构完成 → OS Card Proportions 完成
+OS Card Proportions 完成 → OS Workspace 完成
 
 ---
 
@@ -34,6 +34,48 @@ OS Floating Workbench 重构完成 → OS Card Proportions 完成
 - ✅ OS Workbench 布局重构（v0.2.0 版本升级）
 - ✅ OS Floating Workbench 重构（v0.3.0 版本升级）
 - ✅ OS Card Proportions 重构（v0.3.1 版本升级）
+- ✅ OS Workspace 重构（v0.4.0 版本升级）
+
+---
+
+## OS Workspace 重构 (v0.4.0)
+
+### 目标
+
+彻底移除网页 section/dashboard/blog layout 感，统一成 OS Workspace Window System
+
+### 修改内容
+
+**版本升级**：v0.3.1 → v0.4.0
+
+**App.tsx**：
+- 移除 `<section className="workspace">` 改为 `<div>`
+- 移除 clips-header 区块（"Recent clips", "8 / 8" 标题）
+- 移除 Quick Capture 的 eyebrow 标签
+
+**global.css**：
+- main: 移除 max-width/ margin auto，100% 全宽
+- workspace: sidebar 280 → 260px
+- main-content: padding 16 → 12px
+- 移除所有 .eyebrow 样式（显示 none）
+- clips-header 设为 display none
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
+
+### OS Workspace 规则
+
+1. **无 container 感**：workspace 直接 100% 宽度，无居中限制
+2. **无标题区**：移除 "Recent clips", "Quick Capture" 等网页标题
+3. **所有区域统一窗口化**：Clips / Quick Capture / Search / Filter 统一 OS Window 风格
+4. **无 dashboard 感**：像多个漂浮窗口组成 workspace，而非网页栏目
+
+---
 
 ---
 

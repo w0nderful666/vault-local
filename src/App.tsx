@@ -511,12 +511,8 @@ export function App() {
       </header>
 
       <main>
-        <section className="workspace">
+        <div className="workspace">
           <div className="main-content">
-            <div className="clips-header">
-              <h2>{t.recentClips}</h2>
-              <small>{filteredClips.length} / {clips.length}</small>
-            </div>
             <div className="floating-grid" data-testid="floating-cards">
               {filteredClips.map((clip) => (
                 <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void openEdit(clip)}>
@@ -559,7 +555,6 @@ export function App() {
 
           <aside className="sidebar">
             <div className="sidebar__section" data-testid="quick-capture" id="capture">
-              <p className="eyebrow">{t.quickCapture}</p>
               <textarea
                 aria-label={t.manualPaste}
                 onChange={(event) => setManualText(event.target.value)}
@@ -655,7 +650,7 @@ export function App() {
               </Button>
             </div>
           </aside>
-        </section>
+        </div>
 
         <section className="advanced section" id="advanced">
           <details className="advanced__details">
