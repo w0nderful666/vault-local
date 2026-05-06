@@ -11,14 +11,14 @@ Local Clipboard Vault 项目的交接文档。
 | 项目名称 | vault-local / Local Clipboard Vault |
 | 项目类型 | 轻量化 Local First 剪切板/文本片段管理工具 |
 | 技术栈 | Vite + React + TypeScript |
-| 当前版本 | v0.3.0 |
+| 当前版本 | v0.3.1 |
 | 部署方式 | GitHub Pages |
 
 ---
 
 ## 当前阶段
 
-OS Workbench 布局重构完成 → OS Floating Workbench 重构完成
+OS Floating Workbench 重构完成 → OS Card Proportions 完成
 
 ---
 
@@ -33,6 +33,42 @@ OS Workbench 布局重构完成 → OS Floating Workbench 重构完成
 - ✅ 首页布局重构（删除 Hero，进入工作台模式）
 - ✅ OS Workbench 布局重构（v0.2.0 版本升级）
 - ✅ OS Floating Workbench 重构（v0.3.0 版本升级）
+- ✅ OS Card Proportions 重构（v0.3.1 版本升级）
+
+---
+
+## OS Card Proportions 重构 (v0.3.1)
+
+### 目标
+
+统一空间比例、卡片比例、工具栏逻辑，建立真正的 OS Card 基础层
+
+### 修改内容
+
+**版本升级**：v0.3.0 → v0.3.1
+
+**App.tsx**：
+- Copy 按钮突出为 primary variant
+- 按钮 icon size: 12 → 11
+
+**global.css**：
+- 工作区：sidebar 320 → 280px，更紧凑
+- padding：20 → 16px，减少空白
+- 卡片：200px min → 180px min，更紧凑
+- 卡片 min-height：120px → 90px
+- 卡片 padding：10-12px → 8-10px
+- 卡片标题：0.85rem → 0.8rem
+- 卡片 actions gap：8px → 4px，工具栏更紧凑
+- 卡片 summary：min-height 68px → 32px，限制为 2 行
+- 窗口按钮 bar：7px → 6px
+
+### 验证命令
+
+```bash
+npm run build    # PASS
+npm run self-test # PASS
+npm run preflight # PASS
+```
 
 ---
 

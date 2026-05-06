@@ -1,5 +1,24 @@
 # Release Notes
 
+## v0.3.1 — OS Card Proportions
+
+May 6, 2026.
+
+Added:
+
+- Wider content area, reduced side margins
+- Card proportions: wider, shorter, more window-like
+- Copy button as primary action (highlighted)
+- Unified toolbar styling
+- OS card structure for motion prep
+- v0.3.1
+
+Changed:
+
+- Grid: 5 columns per row target
+- Cards: more horizontal, less tall
+- Actions: primary/secondary/danger hierarchy
+
 ## v0.3.0 — OS Floating Workbench
 
 May 6, 2026.
