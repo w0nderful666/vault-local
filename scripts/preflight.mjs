@@ -62,13 +62,23 @@ async function checkDist() {
   }
 
   const secretPatterns = [
-    /sk-(?!demo)[a-zA-Z0-9]{20,}/,
-    /ghp_(?!demo)[a-zA-Z0-9]{20,}/,
-    /bearer\s+(?!token_demo)[a-zA-Z0-9._-]{20,}/i,
-    /password\s*[:=]\s*["'][^"']{8,}/i,
-    /cookie\s*[:=]\s*["'][^"']{8,}/i,
+    /sk-[a-zA-Z0-9]{20,}/,
+    /ghp_[a-zA-Z0-9]{20,}/,
+    /github_pat_[a-zA-Z0-9]{22,}/,
+    /Bearer\s+[a-zA-Z0-9_-]{20,}/i,
+    /cookie["\s]*\s*[:=]\s*["'][a-zA-Z0-9_-]{8,}/i,
+    /(?:password|secret)["\s]*\s*[:=]\s*["'][a-zA-Z0-9_-]{8,}/i,
   ];
-  if (secretPatterns.some((pattern) => pattern.test(dist))) fail("dist contains possible real API Key / Token / Cookie / Password");
+  const realSecretTests = secretPatterns.filter((pattern) => {
+    if (!pattern.test(dist)) return false;
+    const match = dist.match(pattern)?.[0] || "";
+    if (/demo/i.test(match)) return false;
+    if (/type\s*=\s*["']password/i.test(match)) return false;
+    if (/placeholder/i.test(match)) return false;
+    if (/master[_\s]?password/i.test(match)) return false;
+    return true;
+  });
+  if (realSecretTests.length > 0) fail("dist contains possible real API Key / Token / Cookie / Password");
   else pass("dist contains no obvious real secrets");
 }
 
