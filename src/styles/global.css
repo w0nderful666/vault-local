@@ -39,6 +39,26 @@
   --easing-window: cubic-bezier(0.16, 0, 0.3, 1);
   --easing-overlay: cubic-bezier(0.3, 0, 0.7, 1);
   --easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  --stagger-base: 40ms;
+  --stagger-max: 400ms;
+
+  --motion-density: normal;
+
+  --depth-bg: 0;
+  --depth-card: 1;
+  --depth-focus: 2;
+  --depth-floating: 3;
+  --depth-overlay: 4;
+  --depth-modal: 5;
+
+  --shadow-depth-0: none;
+  --shadow-depth-1: 0 1px 3px rgb(0 0 0 / 4%), 0 2px 8px rgb(0 0 0 / 5%);
+  --shadow-depth-2: 0 2px 6px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 10%);
+  --shadow-depth-3: 0 4px 12px rgb(0 0 0 / 10%), 0 8px 24px rgb(0 0 0 / 15%);
+  --shadow-focus: 0 0 0 2px var(--focus);
+
+  --focus-energy: var(--focus);
 }
 
 :root[data-theme="dark"] {
@@ -401,7 +421,16 @@ main {
   place-items: center;
   background: rgb(7 11 13 / 50%);
   padding: 18px;
-  animation: modal-fade-in 200ms ease-out;
+  animation: modal-fade-in var(--duration-normal) var(--easing-overlay);
+}
+
+.modal--closing {
+  animation: modal-fade-out var(--duration-fast) var(--easing-standard-rev) forwards;
+}
+
+.modal--closing .modal__panel,
+.modal--closing .modal__panel--window {
+  animation: modal-scale-out var(--duration-normal) var(--easing-standard-rev) forwards;
 }
 
 .modal__panel {
@@ -412,7 +441,7 @@ main {
   border-radius: 12px;
   background: var(--surface);
   box-shadow: 0 8px 32px rgb(0 0 0 / 20%);
-  animation: modal-scale-in 250ms cubic-bezier(0.2, 0, 0, 1);
+  animation: modal-scale-in var(--duration-slow) var(--easing-window);
 }
 
 .modal__panel--window {
@@ -430,6 +459,81 @@ main {
 @keyframes modal-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modal-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+
+@keyframes card-float {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes card-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+    filter: blur(6px);
+  }
+}
+
+@keyframes window-content-slide {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes modal-scale-in {
@@ -559,6 +663,10 @@ main {
 .window--preferences .window__main {
   display: flex;
   flex-direction: column;
+}
+
+.window--preferences .window__main > * {
+  animation: window-content-slide var(--duration-fast) var(--easing-standard);
 }
 
 .window--preferences .window__header {
@@ -751,15 +859,23 @@ select:focus {
   font-size: 0.72rem;
   font-weight: 700;
   transition:
-    border-color var(--duration-fastest) var(--easing-standard),
-    background var(--duration-fastest) var(--easing-standard),
-    color var(--duration-fastest) var(--easing-standard);
+    border-color var(--duration-fast) var(--easing-standard),
+    background var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fastest) var(--easing-standard);
+}
+
+.chip:hover {
+  border-color: color-mix(in srgb, var(--teal) 50%, var(--border));
+  color: var(--text);
+  transform: translateY(-1px);
 }
 
 .chip.is-active {
   border-color: color-mix(in srgb, var(--teal) 60%, var(--border));
   background: var(--teal-soft);
   color: var(--teal);
+  transform: translateY(-1px);
 }
 
 .section__header {
@@ -776,6 +892,35 @@ select:focus {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 10px;
   padding: 2px;
+  content-visibility: auto;
+}
+
+.floating-grid[data-filtering="true"] {
+  animation: grid-regroup var(--duration-slow) var(--easing-standard);
+}
+
+@keyframes grid-regroup {
+  0%   { opacity: 0.7; }
+  50%  { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg);
+  transition: opacity var(--duration-fast) var(--easing-standard);
+}
+
+.main-content[data-filtering="true"] {
+  animation: content-reflow var(--duration-normal) var(--easing-standard);
+}
+
+@keyframes content-reflow {
+  0%   { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 .clip-card {
@@ -789,22 +934,52 @@ select:focus {
   padding: 8px 10px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 4%), 0 2px 8px rgb(0 0 0 / 5%);
   cursor: pointer;
-  animation: card-float var(--duration-slow) var(--easing-standard);
   transition:
     border-color var(--duration-fast) var(--easing-standard),
     box-shadow var(--duration-fast) var(--easing-standard),
     transform var(--duration-fast) var(--easing-standard);
   position: relative;
+  will-change: transform, opacity, filter;
 }
 
+.clip-card--entering {
+  animation: card-enter var(--duration-slow) var(--easing-standard) var(--stagger-delay, 0ms) both;
+}
+
+.clip-card--leaving {
+  animation: card-exit var(--duration-normal) var(--easing-standard-rev) forwards;
+  pointer-events: none;
+}
+
+.clip-card--shifting {
+  transition:
+    transform var(--duration-slow) var(--easing-standard),
+    opacity var(--duration-normal) var(--easing-standard);
+}
+
+.clip-card:nth-child(1)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 0); }
+.clip-card:nth-child(2)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 1); }
+.clip-card:nth-child(3)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 2); }
+.clip-card:nth-child(4)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 3); }
+.clip-card:nth-child(5)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 4); }
+.clip-card:nth-child(6)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 5); }
+.clip-card:nth-child(7)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 6); }
+.clip-card:nth-child(8)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 7); }
+.clip-card:nth-child(9)  { --stagger-delay: calc(var(--stagger-base, 40ms) * 8); }
+.clip-card:nth-child(10) { --stagger-delay: calc(var(--stagger-base, 40ms) * 9); }
+.clip-card:nth-child(n+11) { --stagger-delay: calc(var(--stagger-base, 40ms) * 10); }
+
 .clip-card:hover {
-  border-color: var(--teal);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 10%);
-  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--teal) 60%, var(--border));
+  box-shadow:
+    var(--shadow-focus),
+    var(--shadow-depth-2);
+  transform: translateY(-2px);
 }
 
 .clip-card:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  transition-duration: var(--duration-fastest);
 }
 
 @keyframes card-float {
@@ -815,6 +990,32 @@ select:focus {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes card-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+    filter: blur(6px);
   }
 }
 
@@ -930,22 +1131,30 @@ select:focus {
   transition:
     background var(--duration-fast) var(--easing-standard),
     color var(--duration-fast) var(--easing-standard),
-    transform var(--duration-fast) var(--easing-standard);
+    transform var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 }
 
 .dock__item:hover {
   background: var(--surface);
   color: var(--text);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-depth-1);
 }
 
 .dock__item:active {
   transform: translateY(0);
+  transition-duration: var(--duration-fastest);
 }
 
 .dock__item--active {
   background: var(--teal-soft);
   color: var(--teal);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+
+.dock__item--active:hover {
+  box-shadow: 0 0 0 2px var(--teal), var(--shadow-depth-1);
 }
 
 .dock__settings {

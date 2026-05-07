@@ -18,7 +18,7 @@ Local Clipboard Vault 项目的交接文档。
 
 ## 当前阶段
 
-OS Window System Polish 完成 → OS Motion System 完成
+OS Window System Polish 完成 → OS Focus & Depth System 完成
 
 ---
 
@@ -39,10 +39,38 @@ OS Window System Polish 完成 → OS Motion System 完成
 - ✅ OS Window System Fix（v0.6.0）
 - ✅ OS Window System Polish（v0.7.0）
 - ✅ OS Motion System（v0.8.0）
+- ✅ OS Focus & Depth System（v0.9.0）
 
 ---
 
-## OS Motion System (v0.8.0)
+## OS Focus & Depth System (v0.9.0)
+
+### 目标
+
+建立 OS Focus Flow System 和 Depth Hierarchy System，让 workspace 具有焦点流动和深度层级感。
+
+### 修改内容
+
+**版本升级**：v0.8.0 → v0.9.0
+
+**global.css**：
+- 新增 Depth Layer System tokens：--depth-bg, --depth-card, --depth-focus, --depth-floating, --depth-overlay, --depth-modal
+- 新增 Shadow Depth tokens：--shadow-depth-0/1/2/3, --shadow-focus
+- 新增 Motion Density tokens：--stagger-base, --stagger-max, --motion-density
+- 新增 Focus Energy token：--focus-energy
+- Card hover: focus ring + depth shadow（能量聚焦，非花哨 glow）
+- Card lift: -3px → -2px（更克制）
+- Card shadow: 使用 --shadow-depth-1/2
+- Dock item hover: shadow depth 空气感
+- Dock item active: focus ring 能量聚焦
+- 移除 backdrop-filter blur（避免过重）
+- clip-card--entering stagger: 使用 --stagger-delay CSS custom property
+
+**docs/STYLE_FINGERPRINT.md**：
+- 新增 Depth Layer System 文档
+- 新增 Shadow Tokens 文档
+
+### 验证命令
 
 ### 目标
 
@@ -713,3 +741,153 @@ const currentVersion = pkg.version;
 - ❌ 删除已有的功能、动画或测试来绕过问题
 - ❌ 引入新框架解决小问题
 - ❌ 自动 push、自动 release（除非明确要求）
+
+---
+
+# Release Discipline & Lifecycle Notes
+
+## 1. Version Trigger Rules
+
+以下情况**必须** bump version：
+
+- 用户可见 UI 变化
+- Motion system 变化
+- Spatial/layout behavior 变化
+- 新增 settings
+- 新增 interaction pattern
+- 新增 motion token
+- 新增 style fingerprint
+- 新增 self-test/preflight 检查
+- 修改已有 animation behavior
+
+## 2. Release Consistency
+
+后续 release 时**必须**同步：
+
+| 文件 | 内容 |
+|------|------|
+| `package.json` | version field |
+| `src/config/siteMeta.ts` | version field |
+| `RELEASE_NOTES.md` | 新增版本记录 |
+| `scripts/run-self-test.mjs` | 版本检测断言 |
+| `scripts/preflight.mjs` | 版本检测断言 |
+| `AGENT_HANDOFF.md` | 当前版本 + 完成事项 |
+
+**禁止**：只改一个文件就发布。
+
+## 3. Stable Baseline Rule
+
+- 不要默认使用 `HEAD~1`
+- 必须明确 stable commit
+- 当前 release baseline：**v0.8.0** + OS Spatial Motion System
+
+## 4. Motion System Evolution Notes
+
+### 已形成规范
+
+- **OS Spatial Motion**：workspace 整体是"活的工作空间"
+- **Stagger System**：CSS nth-child + `--stagger-delay`（40ms base）
+- **Spatial Continuity**：grid continuity via `--clip-card--shifting`
+- **Floating Layer**：backdrop blur + box-shadow + translateY hover
+- **Anti-Web-Feeling**：无 container 感、无 section 标题、点击即操作
+
+### Motion Tokens（已统一）
+
+| Token | Value |
+|-------|-------|
+| `--duration-instant` | 0ms |
+| `--duration-fastest` | 80ms |
+| `--duration-fast` | 120ms |
+| `--duration-normal` | 180ms |
+| `--duration-slow` | 240ms |
+| `--duration-slowest` | 320ms |
+| `--easing-standard` | cubic-bezier(0.2, 0, 0, 1) |
+| `--easing-standard-rev` | cubic-bezier(0, 0, 0.8, 1) |
+| `--stagger-base` | 40ms |
+| `--stagger-max` | 400ms |
+
+### Motion States
+
+- `.clip-card--entering`：blur + scale + translateY 入场
+- `.clip-card--leaving`：blur out + scale down + opacity fade
+- `.clip-card--shifting`：transform transition 用于补位
+- `.floating-grid[data-filtering]`：grid pulse 反馈
+
+### 后续 Agent 禁止行为
+
+- ❌ 删除 motion continuity
+- ❌ 回退为普通网页 `transition: all`
+- ❌ 引入第二套 animation system
+- ❌ 引入 marketing-style bounce/elastic
+- ❌ 使用 `--easing-standard` 以外的值除非有明确理由
+- ❌ 改变 stagger base 而不同步 stagger-max
+
+## 5. Cloud Rule Priority
+
+**云端 skill / lifecycle docs 优先级高于本地临时规则**。
+
+以下文件后续优先通过"拉取云端最新规则"统一更新：
+- README.md
+- RELEASE_NOTES.md
+- docs/*
+- scripts/*
+
+**不要在本地随意分叉修改**。
+
+如需修改：
+1. 先检查云端是否有最新版本
+2. 如有，合并云端规则后再修改
+3. 记录本地修改内容用于后续同步
+
+## 6. 文件修改限制
+
+**本轮约束**：
+
+| 文件 | 状态 |
+|------|------|
+| package.json | ❌ 不修改 |
+| README.md | ❌ 不修改 |
+| RELEASE_NOTES.md | ❌ 不修改 |
+| docs/* | ❌ 不修改（除 AGENT_HANDOFF.md） |
+| scripts/* | ❌ 不修改 |
+| AGENT_HANDOFF.md | ✅ 可修改（记录用） |
+| src/* | ✅ 正常修改 |
+
+## 7. Style Fingerprint
+
+项目已创建 `docs/STYLE_FINGERPRINT.md`，记录：
+
+- Motion Philosophy
+- Hover Rules
+- Spatial Rules
+- Layer System
+- Floating Layer Rules
+- Workspace Continuity Rules
+- Anti-Web-Feeling Rules
+- Performance Rules
+- Keyframes Reference
+
+**后续 Agent 必须遵守此文档规范**。
+
+---
+
+## 当前版本状态
+
+| 字段 | 值 |
+|------|------|
+| Version | v0.9.0 |
+| Motion System | OS Focus & Depth System |
+| Style Fingerprint | docs/STYLE_FINGERPRINT.md |
+| Stable Baseline | v0.9.0 commit + current HEAD |
+| Motion Tokens | 统一（duration/easing/stagger） |
+
+---
+
+## 后续 Agent 注意事项
+
+1. **先读 AGENT_HANDOFF.md** - 了解当前状态
+2. **遵守 Motion System 规范** - 不要回退
+3. **版本升级必须同步所有文件** - 不要遗漏
+4. **云端规则优先** - 不要本地随意分叉
+5. **只改必要文件** - 不要修改 README/docs/scripts 除非拉取云端更新
+6. **不自动 push/release** - 除非用户明确要求

@@ -1,5 +1,34 @@
 # Release Notes
 
+## v0.9.0 — OS Focus & Depth System
+
+May 6, 2026.
+
+Added:
+
+- OS Focus Flow System: focus ring on card hover
+- Depth Hierarchy System: --depth-* and --shadow-depth-* tokens
+- STYLE_FINGERPRINT.md: comprehensive motion system documentation
+- Depth tokens: 6 levels (bg, card, focus, floating, overlay, modal)
+- Shadow depth tokens: 4 levels with focus ring
+
+Changed:
+
+- Card hover: focus ring + depth shadow (energy concentration, not flashy glow)
+- Card lift: reduced from -3px to -2px (more subtle)
+- Card shadow: now uses --shadow-depth-1 by default, --shadow-depth-2 on hover
+- Dock item hover: added shadow depth for air/inertia feel
+- Dock item active: focus ring indicator for energy focus
+- Removed backdrop-filter blur from card hover (too heavy)
+- Clip-card--entering stagger: now uses --stagger-delay CSS custom property
+
+Fixed:
+
+- Card entrance/exit: blur + scale + translateY for smooth spatial continuity
+- Modal close: scale + fade out animation
+- Filter trigger: grid regroup pulse for workspace continuity
+- Chip hover: subtle lift for focus feel
+
 ## v0.8.0 — OS Motion System
 
 May 6, 2026.

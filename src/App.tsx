@@ -249,6 +249,9 @@ export function App() {
   const [dockFilter, setDockFilter] = useState<ClipType | "All">("All");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<"appearance" | "workspace" | "advanced">("appearance");
+  const [leavingIds, setLeavingIds] = useState<Set<string>>(new Set());
+  const [enteringIds] = useState<Set<string>>(new Set());
+  const [filtering, setFiltering] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const t = text[language];
   const vaultUnlocked = vaultPassword.length > 0;
@@ -297,6 +300,15 @@ export function App() {
       window.removeEventListener("pointerdown", reset);
     };
   }, [vaultUnlocked]);
+
+  useEffect(() => {
+    if (filter.query || filter.type !== "All" || filter.tag || filter.onlyPinned || filter.onlyFavorite) {
+      setFiltering(true);
+      const timer = window.setTimeout(() => setFiltering(false), 180);
+      return () => window.clearTimeout(timer);
+    }
+    return undefined;
+  }, [filter]);
 
   const tags = useMemo(
     () => Array.from(new Set(clips.flatMap((clip) => clip.tags))).sort(),
@@ -462,12 +474,20 @@ export function App() {
 
   const deleteClip = (clip: ClipItem) => {
     if (!window.confirm(`Delete "${clip.title}"?`)) return;
-    setClips((current) => current.filter((item) => item.id !== clip.id));
-    setRevealed((current) => {
-      const next = { ...current };
-      delete next[clip.id];
-      return next;
-    });
+    setLeavingIds((current) => new Set(current).add(clip.id));
+    window.setTimeout(() => {
+      setClips((current) => current.filter((item) => item.id !== clip.id));
+      setRevealed((current) => {
+        const next = { ...current };
+        delete next[clip.id];
+        return next;
+      });
+      setLeavingIds((current) => {
+        const next = new Set(current);
+        next.delete(clip.id);
+        return next;
+      });
+    }, 240);
     showToast(t.deleted);
   };
 
@@ -541,10 +561,15 @@ export function App() {
 
       <main>
         <div className="workspace">
-          <div className="main-content">
+          <div className="main-content" data-filtering={filtering}>
             <div className="floating-grid" data-testid="floating-cards">
               {filteredClips.map((clip) => (
-                <article className="clip-card" data-testid="clip-card" key={clip.id} onClick={() => void copyClip(clip)}>
+                <article
+                  className={`clip-card${leavingIds.has(clip.id) ? " clip-card--leaving" : ""}`}
+                  data-testid="clip-card"
+                  key={clip.id}
+                  onClick={() => void copyClip(clip)}
+                >
                   <div className="clip-card__bar">
                     <span />
                     <span />

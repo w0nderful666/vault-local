@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "./Button";
 
@@ -11,6 +11,8 @@ type ModalProps = {
 };
 
 export function Modal({ children, closeLabel, isOpen, onClose, title }: ModalProps) {
+  const [isClosing, setIsClosing] = useState(false);
+
   useEffect(() => {
     if (!isOpen) {
       return undefined;
@@ -18,15 +20,23 @@ export function Modal({ children, closeLabel, isOpen, onClose, title }: ModalPro
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        handleClose();
       }
     };
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
-  if (!isOpen) {
+  const handleClose = () => {
+    setIsClosing(true);
+    window.setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 240);
+  };
+
+  if (!isOpen && !isClosing) {
     return null;
   }
 
@@ -35,7 +45,7 @@ export function Modal({ children, closeLabel, isOpen, onClose, title }: ModalPro
     ("props" in children && children.props?.className?.includes("window"));
 
   return (
-    <div className="modal" role="presentation" onMouseDown={onClose}>
+    <div className={`modal${isClosing ? " modal--closing" : ""}`} role="presentation" onMouseDown={handleClose}>
       <section
         aria-modal="true"
         className={hasWindowClass ? "modal__panel modal__panel--window" : "modal__panel"}
@@ -49,7 +59,7 @@ export function Modal({ children, closeLabel, isOpen, onClose, title }: ModalPro
             <Button
               aria-label={closeLabel}
               icon={<X size={18} />}
-              onClick={onClose}
+              onClick={handleClose}
               size="sm"
               variant="ghost"
             >
