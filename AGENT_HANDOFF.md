@@ -18,7 +18,16 @@ Local Clipboard Vault 项目的交接文档。
 
 ## 当前阶段
 
-OS Window System Polish 完成 → Cinematic Background & Theme System 完成
+OS Window System Polish 完成 → Cinematic Background & Theme System 完成 → 回退至 v0.10.0 稳定版
+
+### 当前稳定 Baseline
+
+| 项目 | 值 |
+|------|------|
+| Commit | 2b86508 |
+| 版本 | v0.10.0 |
+| 状态 | 稳定（回退后） |
+| 注意 | Light theme atmosphere 仍需优化，但需谨慎小步进行 |
 
 ---
 
@@ -930,3 +939,36 @@ const currentVersion = pkg.version;
 4. **云端规则优先** - 不要本地随意分叉
 5. **只改必要文件** - 不要修改 README/docs/scripts 除非拉取云端更新
 6. **不自动 push/release** - 除非用户明确要求
+
+---
+
+## 版本回退记录
+
+### 2026-05-06 回退事件
+
+**问题**：用户反馈以下问题：
+1. Toast 横跨整屏，像网页 alert
+2. Light theme atmosphere 几乎不可见
+3. Settings Modal 太平，不像 OS window
+
+**尝试的修复**（92d248a）：
+- Toast 改为右上角 fixed + max-width: 360px
+- Light theme atmosphere tokens 增强（--glow-center 80%, --vignette-opacity 0.12）
+- main-content 添加 inset shadow 和 internal glow
+- Settings modal sidebar 添加 depth edge 和 active tab 指示器
+
+**结果**：用户仍不满意，触发回退
+
+**回退操作**：
+1. `git reset --hard 7cee5f3` → 回退到 polish: refine floating ui atmosphere layer
+2. `git reset --hard 2b86508` → 最终回退到 v0.10.0 初始状态
+
+**当前稳定版本**：v0.10.0 (2b86508)
+
+### 教训总结
+
+1. **Atmosphere 不可见根因**：浅色主题的 `--bg` 过亮实心，覆盖了 pseudo-element glow
+2. **Light theme atmosphere 增强需谨慎**：不要让浅色变灰脏，要保持清爽可读
+3. **Toast 设计**：必须 `max-width` + `min-width: 0` + 右上角固定位置
+4. **小步验证**：大改 light theme 前应先预览，确认 atmosphere 确实可见再提交
+5. **用户反馈优先**：用户截图显示的问题比代码预期更准确
