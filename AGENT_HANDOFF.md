@@ -18,7 +18,7 @@ Local Clipboard Vault 项目的交接文档。
 
 ## 当前阶段
 
-OS Window System Polish 完成 → OS Focus & Depth System 完成
+OS Window System Polish 完成 → Cinematic Background & Theme System 完成
 
 ---
 
@@ -40,10 +40,44 @@ OS Window System Polish 完成 → OS Focus & Depth System 完成
 - ✅ OS Window System Polish（v0.7.0）
 - ✅ OS Motion System（v0.8.0）
 - ✅ OS Focus & Depth System（v0.9.0）
+- ✅ Cinematic Background & Theme System（v0.10.0）
 
 ---
 
-## OS Focus & Depth System (v0.9.0)
+## Cinematic Background & Theme System (v0.10.0)
+
+### 目标
+
+建立 Cinematic Background Layer System，让 workspace 具有"空间层"感，而非平面背景。
+
+### 修改内容
+
+**版本升级**：v0.9.0 → v0.10.0
+
+**global.css**：
+- 新增 Background Layer System：--glow-center, --vignette-opacity, --ambient-intensity
+- 新增 body::before：center ambient glow (radial-gradient)
+- 新增 body::after：edge vignette (radial-gradient)
+- 新增 .app-shell：背景层容器
+- Theme 切换：400ms smooth transition
+- Light theme：subtle center glow
+- Dark theme：stronger vignette (0.4 opacity)
+
+**docs/STYLE_FINGERPRINT.md**：
+- 新增 Background Layer System 文档
+- 新增 Light Composition 文档
+
+### 版本同步规则
+
+**必须同步的文件**（每次 version bump）：
+1. package.json version
+2. src/config/siteMeta.ts version
+3. RELEASE_NOTES.md
+4. scripts/run-self-test.mjs（版本检测）
+5. scripts/preflight.mjs（版本检测）
+6. AGENT_HANDOFF.md（当前版本 + 完成事项）
+
+### 验证命令
 
 ### 目标
 
@@ -762,7 +796,7 @@ const currentVersion = pkg.version;
 
 ## 2. Release Consistency
 
-后续 release 时**必须**同步：
+**CRITICAL**：必须同步以下 6 个文件：
 
 | 文件 | 内容 |
 |------|------|
@@ -774,6 +808,11 @@ const currentVersion = pkg.version;
 | `AGENT_HANDOFF.md` | 当前版本 + 完成事项 |
 
 **禁止**：只改一个文件就发布。
+
+**版本号命名**：遵循 semver
+- **patch**（修复）：v0.x.0 → v0.x.1
+- **minor**（功能）：v0.x.0 → v0.x+1.0
+- **major**（重大重构）：v0.x.0 → v0.x+1.0（重大 UI 变化）
 
 ## 3. Stable Baseline Rule
 
@@ -875,10 +914,10 @@ const currentVersion = pkg.version;
 
 | 字段 | 值 |
 |------|------|
-| Version | v0.9.0 |
-| Motion System | OS Focus & Depth System |
+| Version | v0.10.0 |
+| Motion System | Cinematic Background & Theme System |
 | Style Fingerprint | docs/STYLE_FINGERPRINT.md |
-| Stable Baseline | v0.9.0 commit + current HEAD |
+| Stable Baseline | v0.10.0 commit + current HEAD |
 | Motion Tokens | 统一（duration/easing/stagger） |
 
 ---

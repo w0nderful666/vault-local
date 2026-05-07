@@ -25,6 +25,41 @@ vault-local OS Motion System 规范文档。
 
 ---
 
+## Background Layer System
+
+**核心概念**：background 不是"一张颜色"，而是"空间层"。
+
+### Light Composition
+
+| Token | Light | Dark | Purpose |
+|-------|-------|------|---------|
+| `--glow-center` | 30% surface-strong | 60% surface-strong | 中心微弱提亮 |
+| `--vignette-opacity` | 0.15 | 0.4 | 边缘暗化 |
+| `--ambient-intensity` | 0.3 | 0.5 | 环境光强度 |
+
+### Background Layers
+
+1. **Base Layer** (`body::before`)：`radial-gradient` 中心提亮，模拟环境光
+2. **Vignette Layer** (`body::after`)：`radial-gradient` 边缘暗化，聚焦中心
+3. **App Layer** (`.app-shell`)：主内容层，使用 `--bg`
+
+### Design Principles
+
+- **克制**：glow 非常轻，不抢 UI 注意力
+- **空间感**：vignette 让边缘后退，中心更"近"
+- **光而非色**：用 opacity 控制光，而非增加颜色
+- **主题过渡**：切换主题时 400ms 渐变
+
+### Anti-Web-Feeling Rules
+
+- ❌ 不是背景图/照片
+- ❌ 不是渐变 banner
+- ❌ 不是渐变按钮
+- ✅ 是空间层：中心亮 + 边缘暗 = 3D 纵深
+- ✅ 是氛围：用户感觉"更深"，而非"更花"
+
+---
+
 ## Motion Philosophy
 
 **核心理念**：

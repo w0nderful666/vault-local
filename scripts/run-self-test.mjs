@@ -42,7 +42,7 @@ async function assertContains(file, marker) {
 
 async function assertPackageVersion() {
   const pkg = JSON.parse(await read("package.json"));
-  if (pkg.version === "0.9.0") pass("package.json version is 0.9.0");
+  if (pkg.version === "0.10.0") pass("package.json version is 0.10.0");
   else fail(`package.json version is ${pkg.version}`);
 }
 
@@ -97,7 +97,7 @@ await assertContains("README.md", "不上传用户内容");
 await assertContains("README.md", "No remote AI");
 await assertContains("README.md", "主密码不保存");
 await assertContains("README.md", "忘记主密码无法恢复");
-  await assertContains("RELEASE_NOTES.md", "v0.9.0");
+  await assertContains("RELEASE_NOTES.md", "v0.10.0");
 
 await assertContains("src/App.tsx", "navigator.clipboard.readText");
 await assertContains("src/App.tsx", "Ctrl + Enter");

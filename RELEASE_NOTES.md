@@ -1,5 +1,25 @@
 # Release Notes
 
+## v0.10.0 — Cinematic Background & Theme System
+
+May 6, 2026.
+
+Added:
+
+- Background Layer System: radial glow center + vignette edge
+- Light Composition tokens: --glow-center, --vignette-opacity, --ambient-intensity
+- body::before: center ambient glow layer
+- body::after: edge vignette layer
+- Theme transition: 400ms smooth color transition
+
+Changed:
+
+- Background: flat linear-gradient → spatial radial layers
+- Body: now uses fixed pseudo-elements for background layers
+- Workspace: cinematic depth via vignette
+- Light theme: subtle center glow (--glow-center: 60%)
+- Dark theme: stronger vignette (--vignette-opacity: 0.4)
+
 ## v0.9.0 — OS Focus & Depth System
 
 May 6, 2026.
