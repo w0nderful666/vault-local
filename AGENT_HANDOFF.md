@@ -931,6 +931,38 @@ const currentVersion = pkg.version;
 
 ---
 
+## Animation / Visual Polish Paused
+
+### 暂停说明
+
+目前动画/视觉优化工作已暂停。
+
+### 仍可能需要后续处理的问题
+
+- **Toast**：横跨整屏问题（需改为 OS notification 小气泡，右上角固定）
+- **Light theme atmosphere**：空间感几乎不可见（需适度增强但保持清爽）
+- **Settings modal**：仍像普通网页弹窗，不够 OS Window 感
+
+### 后续处理原则
+
+1. **不要小修小补**：不要继续在当前基础上单独调动画或调 token
+2. **如需继续，应完整 UI 重构**：将 Toast / Light theme / Settings 作为一次完整重构处理
+3. **当前优先保持稳定**：确保项目可用、功能完整，不因追求视觉效果引入 bug
+4. **验证后再推送**：每次修改必须本地预览确认效果，不仅仅是 build 通过
+
+### 暂停原因
+
+- 视觉优化迭代中多次回退（92d248a → 7cee5f3 → 2b86508）
+- Light theme atmosphere 在浅色背景下难以平衡"清爽可读"与"空间感"
+- Toast 形态需要重新设计组件结构，而非单纯调 CSS
+
+### 当前稳定状态
+
+- 版本：v0.10.0
+- Commit：2b86508
+- 状态：功能完整、测试通过、可正常使用的稳定版本
+- 线上地址：https://w0nderful666.github.io/local-clipboard-vault/
+
 ## 后续 Agent 注意事项
 
 1. **先读 AGENT_HANDOFF.md** - 了解当前状态
