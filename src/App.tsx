@@ -33,6 +33,7 @@ import {
   type ClipItem,
   type ClipType,
   createClipFromContent,
+  detectSensitive,
   detectClipType,
   generateClipTitle,
   summarizeClip,
@@ -98,6 +99,8 @@ const text = {
     savedFromClipboard: "Saved from clipboard",
     saved: "Saved",
     copied: "Copied",
+    readingClipboard: "Reading clipboard...",
+    emptyClipboard: "Clipboard is empty. Paste content manually.",
     clipboardDenied: "Clipboard permission denied. Use Ctrl + V manually.",
     unlockFirst: "Unlock vault before saving or revealing sensitive content.",
     imported: "JSON imported",
@@ -154,6 +157,8 @@ const text = {
     language: "Language",
     savedFromClipboard: "Saved from clipboard",
     saved: "Saved",
+    readingClipboard: "Reading clipboard...",
+    emptyClipboard: "Clipboard is empty. Paste content manually.",
     clipboardDenied: "Clipboard permission denied. Paste manually with Ctrl + V.",
     unlockFirst: "Unlock vault before saving or revealing sensitive content.",
     imported: "JSON imported",
@@ -274,9 +279,11 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<"appearance" | "workspace" | "advanced">("appearance");
   const [leavingIds, setLeavingIds] = useState<Set<string>>(new Set());
-  const [enteringIds] = useState<Set<string>>(new Set());
+  const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const [filtering, setFiltering] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const manualTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [captureMode, setCaptureMode] = useState<"idle" | "reading" | "manual">("idle");
   const t = text[language];
   const vaultUnlocked = vaultPassword.length > 0;
 
@@ -352,6 +359,24 @@ export function App() {
     setToast({ id: Date.now(), text, tone });
   };
 
+  const focusManualCapture = () => {
+    setCaptureMode("manual");
+    window.requestAnimationFrame(() => {
+      manualTextareaRef.current?.focus();
+    });
+  };
+
+  const markClipCreated = (id: string) => {
+    setHighlightIds((current) => new Set(current).add(id));
+    window.setTimeout(() => {
+      setHighlightIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }, 900);
+  };
+
   const persistClip = async (clip: ClipItem, content: string): Promise<ClipItem | null> => {
     if (!clip.sensitive) {
       return {
@@ -376,25 +401,53 @@ export function App() {
     };
   };
 
-  const saveNewContent = async (content: string, sensitive = manualSensitive) => {
+  const saveNewContent = async (
+    content: string,
+    options: { sensitive?: boolean; successText?: string } = {},
+  ): Promise<boolean> => {
     const trimmed = content.trim();
-    if (!trimmed) return;
-    const created = createClipFromContent(trimmed, { sensitive });
+    if (!trimmed) {
+      showToast(t.emptyClipboard, "warning");
+      focusManualCapture();
+      return false;
+    }
+    const shouldForceSensitive = options.sensitive === true;
+    const created = createClipFromContent(trimmed, shouldForceSensitive ? { sensitive: true } : {});
+    if (!shouldForceSensitive && detectSensitive(trimmed) && !vaultUnlocked) {
+      focusManualCapture();
+      showToast(t.unlockFirst, "danger");
+      return false;
+    }
     const stored = await persistClip(created, trimmed);
-    if (!stored) return;
+    if (!stored) return false;
     setClips((current) => sortClips([stored, ...current]));
+    markClipCreated(stored.id);
     setManualText("");
     setManualSensitive(false);
-    showToast(t.saved);
+    setCaptureMode("idle");
+    showToast(options.successText ?? t.saved);
+    return true;
   };
 
   const importFromClipboard = async () => {
+    if (!navigator.clipboard?.readText) {
+      focusManualCapture();
+      showToast(t.clipboardDenied, "warning");
+      return;
+    }
+
+    setCaptureMode("reading");
+    showToast(t.readingClipboard, "warning");
+
     try {
-      const text = await navigator.clipboard.readText();
-      await saveNewContent(text);
-      showToast(t.savedFromClipboard);
+      const clipboardText = await navigator.clipboard.readText();
+      const saved = await saveNewContent(clipboardText, { successText: t.savedFromClipboard });
+      if (!saved) {
+        setCaptureMode("manual");
+      }
     } catch {
-      showToast(t.clipboardDenied, "danger");
+      focusManualCapture();
+      showToast(t.clipboardDenied, "warning");
     }
   };
 
@@ -429,9 +482,11 @@ export function App() {
     try {
       const content = await decryptContent(clip.encryptedPayload, vaultPassword);
       setRevealed((current) => ({ ...current, [clip.id]: content }));
+      return content;
     } catch {
       showToast("Wrong password or damaged payload.", "danger");
     }
+    return null;
   };
 
   const updateClip = (id: string, patch: Partial<ClipItem>) => {
@@ -445,12 +500,14 @@ export function App() {
   };
 
   const openEdit = async (clip: ClipItem) => {
+    let content = revealed[clip.id] ?? clip.content ?? "";
     if (clip.encrypted && !revealed[clip.id]) {
-      await revealClip(clip);
-      if (!vaultUnlocked) return;
+      const decrypted = await revealClip(clip);
+      if (!decrypted) return;
+      content = decrypted;
     }
     setEditing(clip);
-    setEditContent(revealed[clip.id] ?? clip.content ?? "");
+    setEditContent(content);
     setEditTags(clip.tags.join(", "));
   };
 
@@ -586,10 +643,10 @@ export function App() {
       <main>
         <div className="workspace">
           <div className="main-content" data-filtering={filtering}>
-            <div className="floating-grid" data-testid="floating-cards">
+            <div className="floating-grid" data-filtering={filtering} data-testid="floating-cards">
               {filteredClips.map((clip) => (
                 <article
-                  className={`clip-card${leavingIds.has(clip.id) ? " clip-card--leaving" : ""}`}
+                  className={`clip-card${leavingIds.has(clip.id) ? " clip-card--leaving" : ""}${highlightIds.has(clip.id) ? " clip-card--new" : ""}`}
                   data-testid="clip-card"
                   key={clip.id}
                   onClick={() => void copyClip(clip)}
@@ -635,13 +692,16 @@ export function App() {
             <div className="sidebar__section" data-testid="quick-capture" id="capture">
               <textarea
                 aria-label={t.manualPaste}
+                className={captureMode === "manual" ? "capture-textarea capture-textarea--attention" : "capture-textarea"}
+                data-capture-mode={captureMode}
                 onChange={(event) => setManualText(event.target.value)}
                 onKeyDown={(event) => {
                   if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-                    void saveNewContent(manualText);
+                    void saveNewContent(manualText, { sensitive: manualSensitive || undefined });
                   }
                 }}
                 placeholder="Paste content... (Ctrl+Enter)"
+                ref={manualTextareaRef}
                 value={manualText}
               />
               <div className="capture-dock__actions">
@@ -653,7 +713,7 @@ export function App() {
                   />
                   {t.sensitive}
                 </label>
-                <Button icon={<Plus size={15} />} onClick={() => void saveNewContent(manualText)} size="sm">
+                <Button icon={<Plus size={15} />} onClick={() => void saveNewContent(manualText, { sensitive: manualSensitive || undefined })} size="sm">
                   {t.saveContent}
                 </Button>
               </div>
@@ -723,8 +783,14 @@ export function App() {
               <Button onClick={() => setFilter({ query: "", type: "All", tag: "", onlyPinned: false, onlyFavorite: false })} size="sm">
                 Clear · {filteredClips.length}
               </Button>
-              <Button icon={<Clipboard size={15} />} onClick={importFromClipboard} variant="primary" size="sm">
-                {t.pasteFromClipboard}
+              <Button
+                disabled={captureMode === "reading"}
+                icon={<Clipboard size={15} />}
+                onClick={importFromClipboard}
+                variant="primary"
+                size="sm"
+              >
+                {captureMode === "reading" ? t.readingClipboard : t.pasteFromClipboard}
               </Button>
             </div>
           </aside>
