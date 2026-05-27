@@ -85,7 +85,7 @@ const text = {
     exportJson: "Export JSON",
     loadSample: "Load sample data",
     clearAll: "Clear all data",
-privacyFirst: "Privacy first",
+    privacyFirst: "Privacy first",
     localOnly: "Local only",
     noBackend: "No backend",
     settings: "Settings",
@@ -162,7 +162,7 @@ privacyFirst: "Privacy first",
     noResults: "No clips match the current filters.",
     privacyNote:
       "Your content never leaves this page. Data is stored in this browser only; clearing browser data removes it. Export JSON backups regularly.",
-    copied: "已复制",
+    copied: "Copied",
   },
 } satisfies Record<Language, Record<string, string>>;
 
@@ -223,6 +223,30 @@ function downloadText(fileName: string, content: string): void {
   anchor.download = fileName;
   anchor.click();
   URL.revokeObjectURL(url);
+}
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.inset = "0 auto auto 0";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  if (!copied) {
+    throw new Error("Copy command was blocked.");
+  }
 }
 
 export function App() {
@@ -374,18 +398,18 @@ export function App() {
     }
   };
 
-  const lastCopyRef = useRef<string>("");
-
   const copyClip = async (clip: ClipItem) => {
-    if (clip.id === lastCopyRef.current) return;
-    lastCopyRef.current = clip.id;
     const content = clip.encrypted ? revealed[clip.id] : clip.content;
     if (clip.encrypted && !content) {
       showToast(t.unlockFirst, "danger");
       return;
     }
-    await navigator.clipboard.writeText(content ?? "");
-    showToast(t.copied);
+    try {
+      await copyTextToClipboard(content ?? "");
+      showToast(t.copied);
+    } catch {
+      showToast(t.clipboardDenied, "danger");
+    }
   };
 
   const revealClip = async (clip: ClipItem) => {
@@ -500,7 +524,7 @@ export function App() {
   const exportJson = () => {
     const date = new Date().toISOString().slice(0, 10);
     downloadText(
-      `local-clipboard-vault-v${siteMeta.version}-${date}.json`,
+      `vault-local-v${siteMeta.version}-${date}.json`,
       clipboardStorage.exportJson(clips),
     );
     showToast(t.exported);
@@ -591,7 +615,7 @@ export function App() {
                     {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
                   </div>
                   <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
-                    <Button title={t.copy} icon={<Copy size={11} />} onClick={() => void copyClip(clip)} size="sm" variant={clip.id ? "primary" : "primary"} />
+                    <Button title={t.copy} icon={<Copy size={11} />} onClick={() => void copyClip(clip)} size="sm" variant="primary" />
                     <Button title={t.edit} icon={<Pencil size={11} />} onClick={() => void openEdit(clip)} size="sm" variant="ghost" />
                     <Button title={t.clone} icon={<Sparkles size={11} />} onClick={() => void cloneClip(clip)} size="sm" variant="ghost" />
                     <Button title={t.pin} icon={<Pin size={11} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "ghost"} />

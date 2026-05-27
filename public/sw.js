@@ -1,10 +1,14 @@
-const CACHE_NAME = "local-clipboard-vault-v0.1.0";
+const CACHE_NAME = "vault-local-v0.10.1";
 const STATIC_ASSETS = [
-  "./",
-  "./index.html",
   "./manifest.webmanifest",
   "./icon.svg",
 ];
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -39,13 +43,24 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put("./index.html", responseToCache);
+          });
+          return response;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
 
-      return fetch(event.request).then((response) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
         if (!response || response.status !== 200 || response.type !== "basic") {
           return response;
         }
@@ -56,7 +71,7 @@ self.addEventListener("fetch", (event) => {
         });
 
         return response;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });

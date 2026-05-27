@@ -2,7 +2,7 @@
 
 ## Project Architecture
 
-Open Tools Starter is a **pure frontend, local-first** project. This means:
+Local Clipboard Vault is a **pure frontend, local-first** project. This means:
 
 - **No user data is uploaded to any server.** All processing happens in the browser.
 - **No login system.** There is no authentication, no user accounts, no sessions.
@@ -16,7 +16,7 @@ If you discover a security concern, please **do not** open a public issue.
 
 Instead, contact the maintainer privately:
 
-- **Email**: [Open a private security advisory on GitHub](https://github.com/w0nderful666/open-tools-starter/security/advisories/new)
+- **Email**: [Open a private security advisory on GitHub](https://github.com/w0nderful666/vault-local/security/advisories/new)
 
 We will respond as quickly as possible and work with you to address the issue.
 
@@ -42,4 +42,4 @@ We will respond as quickly as possible and work with you to address the issue.
 
 ## Scope
 
-This security policy covers the Open Tools Starter template itself. Projects created from this template are maintained separately and may have their own security policies.
+This security policy covers Local Clipboard Vault itself. Projects created from this code are maintained separately and may have their own security policies.

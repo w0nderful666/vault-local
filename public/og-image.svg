@@ -29,8 +29,8 @@
     <rect x="38" y="38" width="30" height="30" rx="6" fill="#2dd4bf" opacity="0.6"/>
   </g>
 
-  <text x="230" y="130" font-family="system-ui, sans-serif" font-size="48" font-weight="bold" fill="#f1f5f9">Open Tools Starter</text>
-  <text x="230" y="175" font-family="system-ui, sans-serif" font-size="22" fill="#94a3b8">v0.2.3 • Local First • No Backend • GitHub Pages Ready</text>
+  <text x="230" y="130" font-family="system-ui, sans-serif" font-size="48" font-weight="bold" fill="#f1f5f9">Local Clipboard Vault</text>
+  <text x="230" y="175" font-family="system-ui, sans-serif" font-size="22" fill="#94a3b8">Local First • No Backend • Browser Encryption</text>
 
   <g transform="translate(80, 240)">
     <rect x="0" y="0" width="80" height="36" rx="18" fill="#0d9488"/>
@@ -41,8 +41,8 @@
     <text x="240" y="24" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">A</text>
   </g>
 
-  <text x="80" y="350" font-family="system-ui, sans-serif" font-size="28" font-weight="bold" fill="#f1f5f9">Project Level System</text>
-  <text x="80" y="390" font-family="system-ui, sans-serif" font-size="20" fill="#94a3b8">用等级控制复杂度，从轻量C级工具扩展到A级旗舰工具箱</text>
+  <text x="80" y="350" font-family="system-ui, sans-serif" font-size="28" font-weight="bold" fill="#f1f5f9">Private clipboard workspace</text>
+  <text x="80" y="390" font-family="system-ui, sans-serif" font-size="20" fill="#94a3b8">Save, search, copy, and encrypt snippets locally in the browser.</text>
 
   <g transform="translate(80, 440)">
     <rect x="0" y="0" width="140" height="32" rx="16" fill="#134e4a"/>
@@ -60,7 +60,7 @@
     <text x="20" y="90" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">test:static, test:config, test:docs...</text>
   </g>
 
-  <g transform="translate="820, 280)">
+  <g transform="translate(820, 280)">
     <rect x="0" y="0" width="280" height="120" rx="12" fill="#334155" stroke="#475569"/>
     <text x="20" y="35" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#f1f5f9">preflight</text>
     <text x="20" y="65" font-family="system-ui, sans-serif" font-size="16" fill="#94a3b8">发布前检查</text>
@@ -74,14 +74,14 @@
     <text x="20" y="90" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">必须/推荐/可选/不建议</text>
   </g>
 
-  <g transform="translate="820, 420)">
+  <g transform="translate(820, 420)">
     <rect x="0" y="0" width="280" height="120" rx="12" fill="#334155" stroke="#475569"/>
     <text x="20" y="35" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#f1f5f9">GitHub Actions</text>
     <text x="20" y="65" font-family="system-ui, sans-serif" font-size="16" fill="#94a3b8">自动构建部署</text>
     <text x="20" y="90" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">push to main → Deploy to Pages</text>
   </g>
 
-  <g transform="translate("80, 550)">
+  <g transform="translate(80, 550)">
     <rect x="0" y="0" width="100" height="40" rx="6" fill="#0ea5e9"/>
     <text x="50" y="26" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Vite</text>
     <rect x="120" y="0" width="100" height="40" rx="6" fill="#61dafb"/>
@@ -90,5 +90,5 @@
     <text x="310" y="26" font-family="system-ui, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">TypeScript</text>
   </g>
 
-  <text x="460" y="580" font-family="system-ui, sans-serif" font-size="20" fill="#64748b">MIT License • Quality Fix v0.2.3</text>
+  <text x="460" y="580" font-family="system-ui, sans-serif" font-size="20" fill="#64748b">MIT License • Privacy-friendly local tool</text>
 </svg>

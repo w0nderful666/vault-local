@@ -1,14 +1,14 @@
-# Contributing to Open Tools Starter
+# Contributing to Local Clipboard Vault
 
 Thanks for your interest in contributing! This document explains how to participate.
 
 ## Welcome
 
-Open Tools Starter is a local-first, privacy-friendly engineering template for building pure frontend GitHub Pages tools. Contributions of all kinds are welcome — bug reports, feature suggestions, documentation improvements, and code.
+Local Clipboard Vault is a local-first, privacy-friendly clipboard workspace for the browser. Contributions of all kinds are welcome — bug reports, feature suggestions, documentation improvements, and code.
 
 ## How to Report Bugs
 
-1. Check [existing issues](https://github.com/w0nderful666/open-tools-starter/issues) to avoid duplicates.
+1. Check [existing issues](https://github.com/w0nderful666/vault-local/issues) to avoid duplicates.
 2. Open a new issue using the **Bug Report** template.
 3. Fill in all required fields: description, steps to reproduce, expected behavior, actual behavior, browser, device, and OS.
 4. If the bug is mobile-specific, note it in the issue.
@@ -35,8 +35,8 @@ Open Tools Starter is a local-first, privacy-friendly engineering template for b
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/open-tools-starter.git
-cd open-tools-starter
+git clone https://github.com/YOUR_USERNAME/vault-local.git
+cd vault-local
 
 # Install dependencies
 npm install

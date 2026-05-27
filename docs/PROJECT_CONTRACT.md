@@ -1,6 +1,6 @@
 # PROJECT_CONTRACT.md
 
-项目名称：local-clipboard-vault
+项目名称：vault-local / Local Clipboard Vault
 定位：Local First、No Backend、GitHub Pages Ready 的剪切板/文本收纳工具
 
 ## 核心承诺
@@ -34,6 +34,6 @@ C-Level（C 级启动）：聚焦单页面本地优先工具，核心功能完�
 
 ## 部署信息
 
-- 仓库：w0nderful666/local-clipboard-vault
-- 线上地址：https://w0nderful666.github.io/local-clipboard-vault/
+- 仓库：w0nderful666/vault-local
+- 线上地址：https://w0nderful666.github.io/vault-local/
 - 部署方式：GitHub Actions → GitHub Pages

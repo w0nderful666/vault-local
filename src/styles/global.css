@@ -113,6 +113,12 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 input,
 textarea,
 select,
@@ -484,13 +490,17 @@ main {
 }
 
 .modal__panel--window {
+  display: flex;
+  flex-direction: column;
   width: min(720px, 100%);
-  max-height: min(600px, calc(100vh - 40px));
+  max-height: calc(100vh - 40px);
   padding: 0;
   overflow: hidden;
 }
 
 .modal__body--window {
+  display: flex;
+  min-height: 0;
   padding: 0;
   overflow: hidden;
 }
@@ -589,6 +599,8 @@ main {
 .window {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-height: calc(100vh - 40px);
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
@@ -597,6 +609,7 @@ main {
 }
 
 .window__header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -632,6 +645,7 @@ main {
 }
 
 .window__toolbar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -642,11 +656,13 @@ main {
 
 .window__content {
   flex: 1;
+  min-height: 0;
   padding: 14px;
   overflow: auto;
 }
 
 .window__footer {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -659,7 +675,7 @@ main {
 .window--preferences {
   display: grid;
   grid-template-columns: 160px 1fr;
-  min-height: 400px;
+  min-height: min(400px, calc(100vh - 40px));
 }
 
 .window--preferences .window__sidebar {
@@ -702,6 +718,8 @@ main {
 .window--preferences .window__main {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
 }
 
 .window--preferences .window__main > * {
@@ -780,6 +798,8 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
   background: var(--surface);
   border-left: 1px solid var(--border);
 }
@@ -979,6 +999,7 @@ select:focus {
     transform var(--duration-fast) var(--easing-standard);
   position: relative;
   will-change: transform, opacity, filter;
+  user-select: none;
 }
 
 .clip-card--entering {
@@ -1375,8 +1396,8 @@ select:focus {
 
 @media (max-width: 920px) {
   .topbar {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    height: auto;
+    min-height: 48px;
   }
 
   .workspace {
@@ -1391,7 +1412,19 @@ select:focus {
 
 @media (max-width: 560px) {
   main {
-    width: min(100% - 24px, 1220px);
+    width: 100%;
+  }
+
+  .topbar {
+    padding-inline: 10px;
+  }
+
+  .topbar__badge {
+    display: none;
+  }
+
+  .topbar__actions {
+    flex-wrap: nowrap;
   }
 
   .topbar__actions,
@@ -1407,8 +1440,34 @@ select:focus {
     width: 100%;
   }
 
+  .topbar__actions .button,
+  .window__footer .button,
+  .clip-card__actions .button {
+    width: auto;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 10px;
+  }
+
+  .modal__panel--window,
+  .window {
+    max-height: calc(100vh - 20px);
+  }
+
+  .window--preferences {
+    grid-template-columns: 1fr;
+  }
+
+  .window--preferences .window__sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .clip-card__actions {

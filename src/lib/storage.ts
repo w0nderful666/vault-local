@@ -6,7 +6,7 @@ function getStorage(): Storage | null {
   }
 
   try {
-    const probeKey = "open-tools-starter.storage-probe";
+    const probeKey = "vault-local.storage-probe";
     window.localStorage.setItem(probeKey, "1");
     window.localStorage.removeItem(probeKey);
     return window.localStorage;

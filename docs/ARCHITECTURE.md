@@ -11,7 +11,7 @@
 ## 项目结构
 
 ```
-local-clipboard-vault/
+vault-local/
 ├── src/
 │   ├── App.tsx              # 主应用组件
 │   ├── main.tsx            # 入口文件
@@ -52,5 +52,5 @@ local-clipboard-vault/
 
 ## 资源路径
 
-- GitHub Pages base：`/local-clipboard-vault/`
-- 线上资源路径：`https://w0nderful666.github.io/local-clipboard-vault/assets/xxx.js`
+- GitHub Pages base：`/vault-local/`
+- 线上资源路径：`https://w0nderful666.github.io/vault-local/assets/xxx.js`

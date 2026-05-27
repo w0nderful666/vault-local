@@ -22,7 +22,7 @@ function getErrorSummary(error: Error | null, errorId: string | null): string {
       errorId,
       message: error?.message ?? "Unknown runtime error",
       name: error?.name ?? "Error",
-      project: "open-tools-starter",
+      project: "vault-local",
     },
     null,
     2,
@@ -74,8 +74,8 @@ export class ErrorBoundary extends Component<
           <p className="eyebrow">Runtime Guard</p>
           <h1>Something went wrong</h1>
           <p>
-            The starter caught a runtime error. You can refresh the page or copy
-            a short error summary for debugging.
+            Local Clipboard Vault caught a runtime error. You can refresh the
+            page or copy a short error summary for debugging.
           </p>
           <p className="error-boundary__id">Error ID: {this.state.errorId}</p>
           <div className="error-boundary__actions">

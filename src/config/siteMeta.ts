@@ -3,8 +3,8 @@ export const siteMeta = {
   shortName: "LCV",
   version: "0.10.0",
   description: "A Local First clipboard vault for saving, searching, and encrypting snippets in the browser.",
-  repositoryUrl: "https://github.com/w0nderful666/local-clipboard-vault",
-  demoUrl: "https://w0nderful666.github.io/local-clipboard-vault/",
+  repositoryUrl: "https://github.com/w0nderful666/vault-local",
+  demoUrl: "https://w0nderful666.github.io/vault-local/",
   author: "w0nderful666",
   license: "MIT",
   keywords: [

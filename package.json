@@ -1,5 +1,5 @@
 {
-  "name": "local-clipboard-vault",
+  "name": "vault-local",
   "version": "0.10.0",
   "private": true,
   "type": "module",
@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/w0nderful666/local-clipboard-vault"
+    "url": "https://github.com/w0nderful666/vault-local"
   },
-  "homepage": "https://w0nderful666.github.io/local-clipboard-vault/",
+  "homepage": "https://w0nderful666.github.io/vault-local/",
   "keywords": [
     "github-pages",
     "frontend",
