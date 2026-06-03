@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Clipboard,
   Copy,
@@ -32,6 +32,7 @@ import {
   CLIP_TYPES,
   type ClipItem,
   type ClipType,
+  copyTextToClipboard,
   createClipFromContent,
   detectSensitive,
   detectClipType,
@@ -180,7 +181,9 @@ function getInitialTheme(): Theme {
 
 function getInitialLanguage(): Language {
   if (typeof window === "undefined") return "zh";
-  return window.localStorage.getItem(`${siteMeta.localStoragePrefix}.language`) === "en" ? "en" : "zh";
+  return window.localStorage.getItem(`${siteMeta.localStoragePrefix}.language`) === "en"
+    ? "en"
+    : "zh";
 }
 
 function formatTime(value: string): string {
@@ -214,8 +217,10 @@ function matchesFilter(clip: ClipItem, filter: FilterMode, revealedContent?: str
     clip.type,
     clip.note,
     clip.tags.join(" "),
-    clip.encrypted && !revealedContent ? "" : revealedContent ?? clip.content ?? "",
-  ].join(" ").toLowerCase();
+    clip.encrypted && !revealedContent ? "" : (revealedContent ?? clip.content ?? ""),
+  ]
+    .join(" ")
+    .toLowerCase();
 
   return searchable.includes(query);
 }
@@ -228,30 +233,6 @@ function downloadText(fileName: string, content: string): void {
   anchor.download = fileName;
   anchor.click();
   URL.revokeObjectURL(url);
-}
-
-async function copyTextToClipboard(text: string): Promise<void> {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "true");
-  textarea.style.position = "fixed";
-  textarea.style.inset = "0 auto auto 0";
-  textarea.style.opacity = "0";
-  textarea.style.pointerEvents = "none";
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  const copied = document.execCommand("copy");
-  document.body.removeChild(textarea);
-
-  if (!copied) {
-    throw new Error("Copy command was blocked.");
-  }
 }
 
 export function App() {
@@ -277,7 +258,9 @@ export function App() {
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [dockFilter, setDockFilter] = useState<ClipType | "All">("All");
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<"appearance" | "workspace" | "advanced">("appearance");
+  const [settingsTab, setSettingsTab] = useState<"appearance" | "workspace" | "advanced">(
+    "appearance"
+  );
   const [leavingIds, setLeavingIds] = useState<Set<string>>(new Set());
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const [filtering, setFiltering] = useState(false);
@@ -286,6 +269,12 @@ export function App() {
   const [captureMode, setCaptureMode] = useState<"idle" | "reading" | "manual">("idle");
   const t = text[language];
   const vaultUnlocked = vaultPassword.length > 0;
+
+  const lockVault = useCallback(() => {
+    setVaultPassword("");
+    setPasswordInput("");
+    setRevealed({});
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -330,10 +319,16 @@ export function App() {
       window.removeEventListener("keydown", reset);
       window.removeEventListener("pointerdown", reset);
     };
-  }, [vaultUnlocked]);
+  }, [vaultUnlocked, lockVault]);
 
   useEffect(() => {
-    if (filter.query || filter.type !== "All" || filter.tag || filter.onlyPinned || filter.onlyFavorite) {
+    if (
+      filter.query ||
+      filter.type !== "All" ||
+      filter.tag ||
+      filter.onlyPinned ||
+      filter.onlyFavorite
+    ) {
       setFiltering(true);
       const timer = window.setTimeout(() => setFiltering(false), 180);
       return () => window.clearTimeout(timer);
@@ -343,20 +338,29 @@ export function App() {
 
   const tags = useMemo(
     () => Array.from(new Set(clips.flatMap((clip) => clip.tags))).sort(),
-    [clips],
+    [clips]
   );
+
+  const [debouncedFilter, setDebouncedFilter] = useState(filter);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedFilter(filter);
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [filter]);
 
   const filteredClips = useMemo(
     () =>
-      sortClips(clips).filter((clip) => {
+      clips.filter((clip) => {
         if (dockFilter !== "All" && clip.type !== dockFilter) return false;
-        return matchesFilter(clip, filter, revealed[clip.id]);
+        return matchesFilter(clip, debouncedFilter, revealed[clip.id]);
       }),
-    [clips, filter, revealed, dockFilter],
+    [clips, debouncedFilter, revealed, dockFilter]
   );
 
   const showToast = (text: string, tone: ToastMessage["tone"] = "success") => {
-    setToast({ id: Date.now(), text, tone });
+    setToast({ id: crypto.randomUUID(), text, tone });
   };
 
   const focusManualCapture = () => {
@@ -403,7 +407,7 @@ export function App() {
 
   const saveNewContent = async (
     content: string,
-    options: { sensitive?: boolean; successText?: string } = {},
+    options: { sensitive?: boolean; successText?: string } = {}
   ): Promise<boolean> => {
     const trimmed = content.trim();
     if (!trimmed) {
@@ -493,9 +497,9 @@ export function App() {
     setClips((current) =>
       sortClips(
         current.map((clip) =>
-          clip.id === id ? { ...clip, ...patch, updatedAt: new Date().toISOString() } : clip,
-        ),
-      ),
+          clip.id === id ? { ...clip, ...patch, updatedAt: new Date().toISOString() } : clip
+        )
+      )
     );
   };
 
@@ -525,7 +529,9 @@ export function App() {
     };
     const stored = await persistClip(updated, editContent);
     if (!stored) return;
-    setClips((current) => sortClips(current.map((clip) => (clip.id === stored.id ? stored : clip))));
+    setClips((current) =>
+      sortClips(current.map((clip) => (clip.id === stored.id ? stored : clip)))
+    );
     setRevealed((current) => ({ ...current, [stored.id]: editContent }));
     setEditing(null);
     showToast(t.saved);
@@ -572,17 +578,11 @@ export function App() {
     showToast(t.deleted);
   };
 
-  function lockVault() {
-    setVaultPassword("");
-    setPasswordInput("");
-    setRevealed({});
-  }
-
   const exportJson = () => {
     const date = new Date().toISOString().slice(0, 10);
     downloadText(
       `vault-local-v${siteMeta.version}-${date}.json`,
-      clipboardStorage.exportJson(clips),
+      clipboardStorage.exportJson(clips)
     );
     showToast(t.exported);
   };
@@ -596,22 +596,34 @@ export function App() {
       showToast(t.imported);
     } catch (error) {
       showToast(error instanceof Error ? error.message : "Import failed.", "danger");
+    } finally {
+      if (importInputRef.current) {
+        importInputRef.current.value = "";
+      }
     }
   };
 
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
   const clearAll = () => {
-    if (!window.confirm("Clear all Local Clipboard Vault data in this browser?")) return;
+    setShowClearConfirm(true);
+  };
+
+  const confirmClearAll = () => {
     clipboardStorage.clear();
     setClips([]);
     setRevealed({});
     showToast(t.clearAll);
+    setShowClearConfirm(false);
   };
 
   return (
     <div className="app-shell" data-testid="app-shell">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="topbar__icon"><Clipboard size={18} /></span>
+          <span className="topbar__icon">
+            <Clipboard size={18} />
+          </span>
           <span className="topbar__version">v{siteMeta.version}</span>
           <span className="topbar__badge">Local First</span>
           <span className="topbar__badge">No Backend</span>
@@ -646,10 +658,19 @@ export function App() {
             <div className="floating-grid" data-filtering={filtering} data-testid="floating-cards">
               {filteredClips.map((clip) => (
                 <article
+                  aria-label={`${clip.title} - ${clip.type}`}
                   className={`clip-card${leavingIds.has(clip.id) ? " clip-card--leaving" : ""}${highlightIds.has(clip.id) ? " clip-card--new" : ""}`}
                   data-testid="clip-card"
                   key={clip.id}
                   onClick={() => void copyClip(clip)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      void copyClip(clip);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="clip-card__bar">
                     <span />
@@ -665,22 +686,68 @@ export function App() {
                   </div>
                   <p className="clip-card__summary">{summarizeClip(clip, revealed[clip.id])}</p>
                   <div className="tag-row tag-row--compact">
-                    {clip.tags.map((tag) => <span className="tag tag--small" key={tag}>{tag}</span>)}
+                    {clip.tags.map((tag) => (
+                      <span className="tag tag--small" key={tag}>
+                        {tag}
+                      </span>
+                    ))}
                     {clip.pinned ? <span className="tag tag--small">Pinned</span> : null}
                     {clip.favorite ? <span className="tag tag--small">Favorite</span> : null}
                     {clip.sensitive ? <span className="tag tag--small">Sensitive</span> : null}
                     {clip.encrypted ? <span className="tag tag--small">Encrypted</span> : null}
                   </div>
                   <div className="clip-card__actions" onClick={(event) => event.stopPropagation()}>
-                    <Button title={t.copy} icon={<Copy size={11} />} onClick={() => void copyClip(clip)} size="sm" variant="primary" />
-                    <Button title={t.edit} icon={<Pencil size={11} />} onClick={() => void openEdit(clip)} size="sm" variant="ghost" />
-                    <Button title={t.clone} icon={<Sparkles size={11} />} onClick={() => void cloneClip(clip)} size="sm" variant="ghost" />
-                    <Button title={t.pin} icon={<Pin size={11} />} onClick={() => updateClip(clip.id, { pinned: !clip.pinned })} size="sm" variant={clip.pinned ? "primary" : "ghost"} />
-                    <Button title={t.favorite} icon={<Heart size={11} />} onClick={() => updateClip(clip.id, { favorite: !clip.favorite })} size="sm" variant={clip.favorite ? "primary" : "ghost"} />
+                    <Button
+                      title={t.copy}
+                      icon={<Copy size={11} />}
+                      onClick={() => void copyClip(clip)}
+                      size="sm"
+                      variant="primary"
+                    />
+                    <Button
+                      title={t.edit}
+                      icon={<Pencil size={11} />}
+                      onClick={() => void openEdit(clip)}
+                      size="sm"
+                      variant="ghost"
+                    />
+                    <Button
+                      title={t.clone}
+                      icon={<Sparkles size={11} />}
+                      onClick={() => void cloneClip(clip)}
+                      size="sm"
+                      variant="ghost"
+                    />
+                    <Button
+                      title={t.pin}
+                      icon={<Pin size={11} />}
+                      onClick={() => updateClip(clip.id, { pinned: !clip.pinned })}
+                      size="sm"
+                      variant={clip.pinned ? "primary" : "ghost"}
+                    />
+                    <Button
+                      title={t.favorite}
+                      icon={<Heart size={11} />}
+                      onClick={() => updateClip(clip.id, { favorite: !clip.favorite })}
+                      size="sm"
+                      variant={clip.favorite ? "primary" : "ghost"}
+                    />
                     {clip.encrypted ? (
-                      <Button title={t.reveal} icon={revealed[clip.id] ? <EyeOff size={11} /> : <Eye size={11} />} onClick={() => void revealClip(clip)} size="sm" variant="ghost" />
+                      <Button
+                        title={t.reveal}
+                        icon={revealed[clip.id] ? <EyeOff size={11} /> : <Eye size={11} />}
+                        onClick={() => void revealClip(clip)}
+                        size="sm"
+                        variant="ghost"
+                      />
                     ) : null}
-                    <Button title={t.delete} icon={<Trash2 size={11} />} onClick={() => deleteClip(clip)} size="sm" variant="ghost" />
+                    <Button
+                      title={t.delete}
+                      icon={<Trash2 size={11} />}
+                      onClick={() => deleteClip(clip)}
+                      size="sm"
+                      variant="ghost"
+                    />
                   </div>
                 </article>
               ))}
@@ -692,7 +759,11 @@ export function App() {
             <div className="sidebar__section" data-testid="quick-capture" id="capture">
               <textarea
                 aria-label={t.manualPaste}
-                className={captureMode === "manual" ? "capture-textarea capture-textarea--attention" : "capture-textarea"}
+                className={
+                  captureMode === "manual"
+                    ? "capture-textarea capture-textarea--attention"
+                    : "capture-textarea"
+                }
                 data-capture-mode={captureMode}
                 onChange={(event) => setManualText(event.target.value)}
                 onKeyDown={(event) => {
@@ -713,7 +784,13 @@ export function App() {
                   />
                   {t.sensitive}
                 </label>
-                <Button icon={<Plus size={15} />} onClick={() => void saveNewContent(manualText, { sensitive: manualSensitive || undefined })} size="sm">
+                <Button
+                  icon={<Plus size={15} />}
+                  onClick={() =>
+                    void saveNewContent(manualText, { sensitive: manualSensitive || undefined })
+                  }
+                  size="sm"
+                >
                   {t.saveContent}
                 </Button>
               </div>
@@ -724,7 +801,9 @@ export function App() {
                 <Search size={15} />
                 <input
                   aria-label={t.search}
-                  onChange={(event) => setFilter((current) => ({ ...current, query: event.target.value }))}
+                  onChange={(event) =>
+                    setFilter((current) => ({ ...current, query: event.target.value }))
+                  }
                   placeholder={t.search}
                   value={filter.query}
                 />
@@ -733,9 +812,17 @@ export function App() {
 
             <div className="sidebar__section">
               <div className="chip-row">
-                <button className={filter.type === "All" ? "chip is-active" : "chip"} onClick={() => setFilter((current) => ({ ...current, type: "All" }))} type="button">All</button>
+                <button
+                  aria-pressed={filter.type === "All"}
+                  className={filter.type === "All" ? "chip is-active" : "chip"}
+                  onClick={() => setFilter((current) => ({ ...current, type: "All" }))}
+                  type="button"
+                >
+                  All
+                </button>
                 {CLIP_TYPES.map((type) => (
                   <button
+                    aria-pressed={filter.type === type}
                     className={filter.type === type ? "chip is-active" : "chip"}
                     key={type}
                     onClick={() => setFilter((current) => ({ ...current, type }))}
@@ -750,11 +837,17 @@ export function App() {
             <div className="sidebar__section">
               <select
                 aria-label={t.tags}
-                onChange={(event) => setFilter((current) => ({ ...current, tag: event.target.value }))}
+                onChange={(event) =>
+                  setFilter((current) => ({ ...current, tag: event.target.value }))
+                }
                 value={filter.tag}
               >
                 <option value="">All tags</option>
-                {tags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
+                {tags.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -762,7 +855,9 @@ export function App() {
               <div className="button-row">
                 <Button
                   icon={<Heart size={14} />}
-                  onClick={() => setFilter((current) => ({ ...current, onlyFavorite: !current.onlyFavorite }))}
+                  onClick={() =>
+                    setFilter((current) => ({ ...current, onlyFavorite: !current.onlyFavorite }))
+                  }
                   variant={filter.onlyFavorite ? "primary" : "secondary"}
                   size="sm"
                 >
@@ -770,7 +865,9 @@ export function App() {
                 </Button>
                 <Button
                   icon={<Pin size={14} />}
-                  onClick={() => setFilter((current) => ({ ...current, onlyPinned: !current.onlyPinned }))}
+                  onClick={() =>
+                    setFilter((current) => ({ ...current, onlyPinned: !current.onlyPinned }))
+                  }
                   variant={filter.onlyPinned ? "primary" : "secondary"}
                   size="sm"
                 >
@@ -780,7 +877,18 @@ export function App() {
             </div>
 
             <div className="sidebar__section">
-              <Button onClick={() => setFilter({ query: "", type: "All", tag: "", onlyPinned: false, onlyFavorite: false })} size="sm">
+              <Button
+                onClick={() =>
+                  setFilter({
+                    query: "",
+                    type: "All",
+                    tag: "",
+                    onlyPinned: false,
+                    onlyFavorite: false,
+                  })
+                }
+                size="sm"
+              >
                 Clear · {filteredClips.length}
               </Button>
               <Button
@@ -824,13 +932,22 @@ export function App() {
               </button>
             ))}
           </div>
-          <button className="dock__settings" onClick={() => setSettingsOpen(true)} title={t.settings}>
+          <button
+            className="dock__settings"
+            onClick={() => setSettingsOpen(true)}
+            title={t.settings}
+          >
             <Settings size={16} />
           </button>
-</div>
+        </div>
       </main>
 
-      <Modal closeLabel="Close" isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} title={t.settings}>
+      <Modal
+        closeLabel="Close"
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        title={t.settings}
+      >
         <div className="window window--preferences">
           <div className="window__sidebar">
             <button
@@ -949,7 +1066,9 @@ export function App() {
                       <h3>Vault</h3>
                       <div className="vault-panel">
                         <div className="vault-panel__status">
-                          <span className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"} />
+                          <span
+                            className={vaultUnlocked ? "vault-dot vault-dot--open" : "vault-dot"}
+                          />
                           <strong>{vaultUnlocked ? t.unlocked : t.locked}</strong>
                           <small>{AUTO_LOCK_MINUTES} min auto lock</small>
                         </div>
@@ -992,10 +1111,24 @@ export function App() {
                           ref={importInputRef}
                           type="file"
                         />
-                        <Button icon={<Upload size={17} />} onClick={() => importInputRef.current?.click()}>{t.importJson}</Button>
-                        <Button icon={<Download size={17} />} onClick={exportJson}>{t.exportJson}</Button>
-                        <Button icon={<FileJson size={17} />} onClick={() => setClips(sortClips(sampleClips))}>{t.loadSample}</Button>
-                        <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">{t.clearAll}</Button>
+                        <Button
+                          icon={<Upload size={17} />}
+                          onClick={() => importInputRef.current?.click()}
+                        >
+                          {t.importJson}
+                        </Button>
+                        <Button icon={<Download size={17} />} onClick={exportJson}>
+                          {t.exportJson}
+                        </Button>
+                        <Button
+                          icon={<FileJson size={17} />}
+                          onClick={() => setClips(sortClips(sampleClips))}
+                        >
+                          {t.loadSample}
+                        </Button>
+                        <Button icon={<Trash2 size={17} />} onClick={clearAll} variant="danger">
+                          {t.clearAll}
+                        </Button>
                       </div>
                     </div>
                     <div className="settings__section">
@@ -1009,7 +1142,12 @@ export function App() {
         </div>
       </Modal>
 
-      <Modal closeLabel="Close" isOpen={Boolean(editing)} onClose={() => setEditing(null)} title={editing?.title ?? t.details}>
+      <Modal
+        closeLabel="Close"
+        isOpen={Boolean(editing)}
+        onClose={() => setEditing(null)}
+        title={editing?.title ?? t.details}
+      >
         {editing ? (
           <div className="window">
             <div className="window__header">
@@ -1036,9 +1174,16 @@ export function App() {
                   <select
                     className="edit-form__input edit-form__select"
                     value={editing.type}
-                    onChange={(event) => setEditing({ ...editing, type: event.target.value as ClipType })}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (CLIP_TYPES.includes(value as ClipType)) {
+                        setEditing({ ...editing, type: value as ClipType });
+                      }
+                    }}
                   >
-                    {CLIP_TYPES.map((type) => <option key={type}>{type}</option>)}
+                    {CLIP_TYPES.map((type) => (
+                      <option key={type}>{type}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="edit-form__group">
@@ -1070,7 +1215,9 @@ export function App() {
                     <input
                       type="checkbox"
                       checked={editing.sensitive}
-                      onChange={(event) => setEditing({ ...editing, sensitive: event.target.checked })}
+                      onChange={(event) =>
+                        setEditing({ ...editing, sensitive: event.target.checked })
+                      }
                     />
                     {t.sensitive}
                   </label>
@@ -1086,22 +1233,53 @@ export function App() {
                     <input
                       type="checkbox"
                       checked={editing.favorite}
-                      onChange={(event) => setEditing({ ...editing, favorite: event.target.checked })}
+                      onChange={(event) =>
+                        setEditing({ ...editing, favorite: event.target.checked })
+                      }
                     />
                     {t.favorite}
                   </label>
                 </div>
                 {editing.sensitive && !editing.encrypted ? (
-                  <p className="edit-form__note">Legacy sensitive item: re-save while vault is unlocked to enable encryption.</p>
+                  <p className="edit-form__note">
+                    Legacy sensitive item: re-save while vault is unlocked to enable encryption.
+                  </p>
                 ) : null}
               </div>
             </div>
             <div className="window__footer">
-              <Button onClick={() => setEditing(null)} variant="ghost">Close</Button>
-              <Button icon={<ShieldCheck size={17} />} onClick={() => void saveEdit()} variant="primary">{t.saveContent}</Button>
+              <Button onClick={() => setEditing(null)} variant="ghost">
+                Close
+              </Button>
+              <Button
+                icon={<ShieldCheck size={17} />}
+                onClick={() => void saveEdit()}
+                variant="primary"
+              >
+                {t.saveContent}
+              </Button>
             </div>
           </div>
         ) : null}
+      </Modal>
+
+      <Modal
+        closeLabel="Cancel"
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        title="Clear All Data"
+      >
+        <div className="confirm-dialog">
+          <p>Clear all Local Clipboard Vault data in this browser?</p>
+          <div className="confirm-dialog__actions">
+            <Button onClick={() => setShowClearConfirm(false)} variant="ghost">
+              Cancel
+            </Button>
+            <Button onClick={confirmClearAll} variant="danger">
+              Clear All
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       <Toast message={toast} onDismiss={() => setToast(null)} />

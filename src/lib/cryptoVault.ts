@@ -22,13 +22,9 @@ function base64ToBytes(value: string): Uint8Array<ArrayBuffer> {
 }
 
 async function deriveKey(password: string, salt: BufferSource): Promise<CryptoKey> {
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveKey"],
-  );
+  const baseKey = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, [
+    "deriveKey",
+  ]);
 
   return crypto.subtle.deriveKey(
     {
@@ -43,7 +39,7 @@ async function deriveKey(password: string, salt: BufferSource): Promise<CryptoKe
       length: 256,
     },
     false,
-    ["encrypt", "decrypt"],
+    ["encrypt", "decrypt"]
   );
 }
 
@@ -58,7 +54,7 @@ export async function encryptContent(content: string, password: string): Promise
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    encoder.encode(content),
+    encoder.encode(content)
   );
 
   return {
@@ -83,7 +79,7 @@ export async function decryptContent(payload: EncryptedPayload, password: string
   const decrypted = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv },
     key,
-    base64ToBytes(payload.ciphertext),
+    base64ToBytes(payload.ciphertext)
   );
 
   return decoder.decode(decrypted);

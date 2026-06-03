@@ -47,7 +47,7 @@ export const clipboardStorage = {
         clips,
       },
       null,
-      2,
+      2
     );
   },
 

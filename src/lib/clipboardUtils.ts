@@ -38,10 +38,27 @@ export type ClipItem = {
   note: string;
 };
 
-const commandPattern = /^(npm|pnpm|yarn|git|curl|ssh|docker|node|python|bash|chmod|systemctl|npx|deno|bun)\b/i;
+function isValidEncryptedPayload(value: unknown): value is EncryptedPayload {
+  if (!value || typeof value !== "object") return false;
+  const obj = value as Record<string, unknown>;
+  return (
+    obj.encrypted === true &&
+    obj.algorithm === "AES-GCM" &&
+    obj.kdf === "PBKDF2" &&
+    typeof obj.iterations === "number" &&
+    typeof obj.salt === "string" &&
+    typeof obj.iv === "string" &&
+    typeof obj.ciphertext === "string"
+  );
+}
+
+const commandPattern =
+  /^(npm|pnpm|yarn|git|curl|ssh|docker|node|python|bash|chmod|systemctl|npx|deno|bun)\b/i;
 const apiKeyPattern = /\b(sk-[a-z0-9_-]{8,}|api[_-]?key|x-api-key|AIza[a-z0-9_-]{8,})\b/i;
-const tokenPattern = /\b(access[_-]?token|auth[_-]?token|bearer\s+[a-z0-9._-]{8,}|ghp_[a-z0-9_]{8,}|token[_-]?[a-z0-9_-]{8,})\b/i;
-const promptPattern = /(please help|you are|你现在要|请帮我|目标|要求|prompt|system prompt|act as)/i;
+const tokenPattern =
+  /\b(access[_-]?token|auth[_-]?token|bearer\s+[a-z0-9._-]{8,}|ghp_[a-z0-9_]{8,}|token[_-]?[a-z0-9_-]{8,})\b/i;
+const promptPattern =
+  /(please help|you are|你现在要|请帮我|目标|要求|prompt|system prompt|act as)/i;
 const templatePattern = /(\{\{.+\}\}|\$\{.+\}|<[^>\s]+>)/;
 
 export function isJsonSnippet(value: string): boolean {
@@ -72,7 +89,11 @@ export function detectClipType(content: string): ClipType {
 }
 
 export function detectSensitive(content: string): boolean {
-  return apiKeyPattern.test(content) || tokenPattern.test(content) || /password|cookie|secret/i.test(content);
+  return (
+    apiKeyPattern.test(content) ||
+    tokenPattern.test(content) ||
+    /password|cookie|secret/i.test(content)
+  );
 }
 
 export function generateClipTitle(content: string, now = new Date()): string {
@@ -110,7 +131,10 @@ export function generateClipTitle(content: string, now = new Date()): string {
   return cleaned.length > 32 ? `${cleaned.slice(0, 29)}...` : cleaned;
 }
 
-export function createClipFromContent(content: string, overrides: Partial<ClipItem> = {}): ClipItem {
+export function createClipFromContent(
+  content: string,
+  overrides: Partial<ClipItem> = {}
+): ClipItem {
   const now = new Date().toISOString();
   const type = overrides.type ?? detectClipType(content);
 
@@ -150,7 +174,7 @@ export function normalizeImportedClip(value: unknown): ClipItem | null {
     return null;
   }
 
-  const source = value as Partial<ClipItem>;
+  const source = value as Record<string, unknown>;
   const fallbackContent = typeof source.content === "string" ? source.content : "";
   const now = new Date().toISOString();
 
@@ -158,9 +182,15 @@ export function normalizeImportedClip(value: unknown): ClipItem | null {
     id: typeof source.id === "string" ? source.id : crypto.randomUUID(),
     title: typeof source.title === "string" ? source.title : generateClipTitle(fallbackContent),
     content: typeof source.content === "string" ? source.content : undefined,
-    encryptedPayload: source.encryptedPayload,
-    type: CLIP_TYPES.includes(source.type as ClipType) ? (source.type as ClipType) : detectClipType(fallbackContent),
-    tags: Array.isArray(source.tags) ? source.tags.filter((tag): tag is string => typeof tag === "string") : [],
+    encryptedPayload: isValidEncryptedPayload(source.encryptedPayload)
+      ? source.encryptedPayload
+      : undefined,
+    type: CLIP_TYPES.includes(source.type as ClipType)
+      ? (source.type as ClipType)
+      : detectClipType(fallbackContent),
+    tags: Array.isArray(source.tags)
+      ? source.tags.filter((tag): tag is string => typeof tag === "string")
+      : [],
     createdAt: typeof source.createdAt === "string" ? source.createdAt : now,
     updatedAt: typeof source.updatedAt === "string" ? source.updatedAt : now,
     pinned: Boolean(source.pinned),
@@ -169,4 +199,28 @@ export function normalizeImportedClip(value: unknown): ClipItem | null {
     encrypted: Boolean(source.encrypted || source.encryptedPayload),
     note: typeof source.note === "string" ? source.note : "",
   };
+}
+
+export async function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.inset = "0 auto auto 0";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  if (!copied) {
+    throw new Error("Copy command was blocked.");
+  }
 }

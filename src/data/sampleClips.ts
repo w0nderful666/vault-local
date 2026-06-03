@@ -6,7 +6,8 @@ export const sampleClips: ClipItem[] = [
   {
     id: "sample-ai-prompt",
     title: "AI prompt review template",
-    content: "You are a senior editor. Review this prompt for clarity, constraints, and missing context. Return a tighter version and explain the main tradeoffs.",
+    content:
+      "You are a senior editor. Review this prompt for clarity, constraints, and missing context. Return a tighter version and explain the main tradeoffs.",
     type: "Prompt",
     tags: ["ai", "prompt"],
     createdAt: now,
@@ -34,7 +35,8 @@ export const sampleClips: ClipItem[] = [
   {
     id: "sample-markdown",
     title: "Markdown Note · release",
-    content: "## Release checklist\n- [ ] Build passes\n- [ ] README updated\n- [ ] Privacy note reviewed",
+    content:
+      "## Release checklist\n- [ ] Build passes\n- [ ] README updated\n- [ ] Privacy note reviewed",
     type: "Markdown",
     tags: ["markdown", "release"],
     createdAt: now,
@@ -48,7 +50,7 @@ export const sampleClips: ClipItem[] = [
   {
     id: "sample-json-config",
     title: "JSON Snippet · config",
-    content: "{\n  \"theme\": \"dark\",\n  \"autoLockMinutes\": 10,\n  \"localOnly\": true\n}",
+    content: '{\n  "theme": "dark",\n  "autoLockMinutes": 10,\n  "localOnly": true\n}',
     type: "JSON",
     tags: ["json", "config"],
     createdAt: now,
@@ -62,7 +64,8 @@ export const sampleClips: ClipItem[] = [
   {
     id: "sample-note",
     title: "Temporary launch note",
-    content: "Check mobile spacing, verify import/export, and publish the first GitHub Pages build after self-test passes.",
+    content:
+      "Check mobile spacing, verify import/export, and publish the first GitHub Pages build after self-test passes.",
     type: "Note",
     tags: ["note", "launch"],
     createdAt: now,
@@ -76,7 +79,8 @@ export const sampleClips: ClipItem[] = [
   {
     id: "sample-copy-template",
     title: "Template · support reply",
-    content: "Hi {{name}}, thanks for the context. I checked the issue and the safest next step is: {{next_step}}.",
+    content:
+      "Hi {{name}}, thanks for the context. I checked the issue and the safest next step is: {{next_step}}.",
     type: "Template",
     tags: ["template", "copy"],
     createdAt: now,

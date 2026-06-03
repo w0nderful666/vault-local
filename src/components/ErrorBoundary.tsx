@@ -25,14 +25,11 @@ function getErrorSummary(error: Error | null, errorId: string | null): string {
       project: "vault-local",
     },
     null,
-    2,
+    2
   );
 }
 
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = {
     error: null,
     errorId: null,
@@ -74,8 +71,8 @@ export class ErrorBoundary extends Component<
           <p className="eyebrow">Runtime Guard</p>
           <h1>Something went wrong</h1>
           <p>
-            Local Clipboard Vault caught a runtime error. You can refresh the
-            page or copy a short error summary for debugging.
+            Local Clipboard Vault caught a runtime error. You can refresh the page or copy a short
+            error summary for debugging.
           </p>
           <p className="error-boundary__id">Error ID: {this.state.errorId}</p>
           <div className="error-boundary__actions">

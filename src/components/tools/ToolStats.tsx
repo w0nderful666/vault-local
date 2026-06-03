@@ -1,4 +1,4 @@
-import { TrendingDown, Type } from "lucide-react";
+import { TrendingDown } from "lucide-react";
 
 interface ToolStatsProps {
   originalCharCount: number;
@@ -18,11 +18,8 @@ export function ToolStats({
   language = "zh",
 }: ToolStatsProps) {
   const removedChars = originalCharCount - resultCharCount;
-  const removedLines = originalLineCount - resultLineCount;
   const reductionPercent =
-    originalCharCount > 0
-      ? Math.round((removedChars / originalCharCount) * 100)
-      : 0;
+    originalCharCount > 0 ? Math.round((removedChars / originalCharCount) * 100) : 0;
 
   const labels = {
     zh: {
@@ -48,19 +45,27 @@ export function ToolStats({
   return (
     <div className="tool-stats">
       <div className="tool-stats__item">
-        <span className="tool-stats__label">{t.original} {t.chars}</span>
+        <span className="tool-stats__label">
+          {t.original} {t.chars}
+        </span>
         <span className="tool-stats__value">{originalCharCount}</span>
       </div>
       <div className="tool-stats__item">
-        <span className="tool-stats__label">{t.result} {t.chars}</span>
+        <span className="tool-stats__label">
+          {t.result} {t.chars}
+        </span>
         <span className="tool-stats__value">{resultCharCount}</span>
       </div>
       <div className="tool-stats__item">
-        <span className="tool-stats__label">{t.original} {t.lines}</span>
+        <span className="tool-stats__label">
+          {t.original} {t.lines}
+        </span>
         <span className="tool-stats__value">{originalLineCount}</span>
       </div>
       <div className="tool-stats__item">
-        <span className="tool-stats__label">{t.result} {t.lines}</span>
+        <span className="tool-stats__label">
+          {t.result} {t.lines}
+        </span>
         <span className="tool-stats__value">{resultLineCount}</span>
       </div>
       <div className="tool-stats__item">

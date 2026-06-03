@@ -25,7 +25,11 @@ export function Button({
       type={type}
       {...props}
     >
-      {icon ? <span className="button__icon" aria-hidden="true">{icon}</span> : null}
+      {icon ? (
+        <span className="button__icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
       <span>{children}</span>
     </button>
   );

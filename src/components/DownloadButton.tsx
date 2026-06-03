@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Check, Download } from "lucide-react";
 import { Button } from "./Button";
 
@@ -18,6 +18,15 @@ export function DownloadButton({
   onDownloaded,
 }: DownloadButtonProps) {
   const [downloaded, setDownloaded] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const onClick = () => {
     const blob = new Blob([content], { type: mimeType });
@@ -31,7 +40,10 @@ export function DownloadButton({
     URL.revokeObjectURL(url);
     setDownloaded(true);
     onDownloaded?.();
-    window.setTimeout(() => setDownloaded(false), 1600);
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => setDownloaded(false), 1600);
   };
 
   return (

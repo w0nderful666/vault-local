@@ -20,7 +20,11 @@ export function Card({
 }: CardProps) {
   return (
     <article className={classNames("card", `card--${tone}`, className)}>
-      {icon ? <div className="card__icon" aria-hidden="true">{icon}</div> : null}
+      {icon ? (
+        <div className="card__icon" aria-hidden="true">
+          {icon}
+        </div>
+      ) : null}
       {title ? <h3>{title}</h3> : null}
       {description ? <p>{description}</p> : null}
       {children}
